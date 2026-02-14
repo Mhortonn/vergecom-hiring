@@ -14,6 +14,7 @@ st.set_page_config(
 def init_db():
     conn = sqlite3.connect('candidates.db')
     c = conn.cursor()
+    # Create table if it doesn't exist
     c.execute('''
         CREATE TABLE IF NOT EXISTS candidates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,7 +30,6 @@ def init_db():
 def add_candidate(name, phone, skills_list):
     conn = sqlite3.connect('candidates.db')
     c = conn.cursor()
-    # Convert list to string
     skills_str = ", ".join(skills_list)
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
@@ -44,7 +44,7 @@ def get_all_candidates():
     conn.close()
     return df
 
-# Initialize DB on first run
+# Initialize DB
 init_db()
 
 # --- SIDEBAR (ADMIN LOGIN) ---
@@ -52,17 +52,18 @@ with st.sidebar:
     st.header("🔧 Admin Login")
     admin_password = st.text_input("Enter Password", type="password")
     
-    # Simple password protection (You can change "admin123")
     if admin_password == "admin123":
-        st.success("Logged in as Admin")
         admin_mode = True
+        st.success("✅ Admin Mode Active")
     else:
         admin_mode = False
 
 # ==========================================
-# VIEW 1: ADMIN PANEL (THE LIST)
+# LOGIC: SHOW ADMIN PANEL OR SHOW FORM
 # ==========================================
+
 if admin_mode:
+    # --- ADMIN VIEW ---
     st.title("📋 Candidate List")
     
     df = get_all_candidates()
@@ -70,14 +71,13 @@ if admin_mode:
     if df.empty:
         st.info("No applications received yet.")
     else:
-        # Show data table
         st.dataframe(
             df,
             column_config={
                 "name": "Name",
-                "phone": "Phone Number",
+                "phone": "Phone",
                 "skills": "Experience",
-                "timestamp": "Time Applied"
+                "timestamp": "Applied On"
             },
             hide_index=True,
             use_container_width=True
@@ -86,28 +86,23 @@ if admin_mode:
         # Download Button
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Download as CSV",
+            label="📥 Download CSV",
             data=csv,
             file_name='vergecom_candidates.csv',
             mime='text/csv',
         )
 
-# ==========================================
-# VIEW 2: CANDIDATE FORM (THE APP)
-# ==========================================
 else:
-    # --- JOB HEADER ---
+    # --- CANDIDATE VIEW ---
     st.title("🚀 Vergecom Hiring Portal")
 
-    # The Job Card
+    # Job Card
     with st.container(border=True):
         col1, col2 = st.columns([2, 1])
-        
         with col1:
             st.write("### 📡 **Field Technician / Installer**")
             st.write("We are looking for experienced installers for **Satellite**, **Starlink**, and **A/V systems**.")
             st.caption("📍 **Location:** Greater Metro Area | 🕒 **Type:** Contract/Full-time")
-        
         with col2:
             st.metric(label="Est. Weekly Pay", value="$1,200 - $1,800")
 
@@ -120,24 +115,51 @@ else:
 
     st.divider()
 
-    # --- THE FORM ---
+    # The Form
     st.progress(16, text="**16% completed**")
-
     st.subheader("Installation Experience")
     st.write("Please select at least one option to continue.")
 
-    # 1. Name & Contact
+    # Inputs
     col_a, col_b = st.columns(2)
     with col_a:
-        candidate_name = st.text_input("**Full Name**", placeholder="e.g. John Smith")
+        candidate_name = st.text_input("Full Name", placeholder="e.g. John Smith")
     with col_b:
-        candidate_phone = st.text_input("**Phone Number**", placeholder="e.g. 555-0199")
+        candidate_phone = st.text_input("Phone Number", placeholder="e.g. 555-0199")
 
-    st.write("") # Spacer
+    st.write("") 
 
-    # 2. Skills (Bold Boxes)
+    # Skills Checkboxes
     st.write("**Select your skills:**")
+    skills_options = [
+        "**Satellite systems** (DirecTV, HughesNet, Dish Network)",
+        "**Starlink installation**",
+        "**TV mounting**",
+        "**Security camera installation**",
+        "**Home theater/audio systems**",
+        "**Low voltage wiring** (Cat5/Cat6/Coax)"
+    ]
     
+    selected_skills = []
+    for skill in skills_options:
+        with st.container(border=True):
+            if st.checkbox(skill):
+                clean_skill = skill.replace("**", "")
+                selected_skills.append(clean_skill)
+
+    st.write("")
+
+    # Submit Button
+    if st.button("Submit Application ➤", type="primary", use_container_width=True):
+        if not candidate_name or not candidate_phone:
+            st.error("⚠️ Please fill in your Name and Phone Number.")
+        elif not selected_skills:
+            st.error("⚠️ Please select at least one skill.")
+        else:
+            add_candidate(candidate_name, candidate_phone, selected_skills)
+            st.balloons()
+            st.success("✅ Application Received!")
+            st.write(f"Thank you, **{candidate_name}**. Our hiring team will contact you at **{candidate_phone}** shortly.")    
     skills_options = [
         "**Satellite systems** (DirecTV, HughesNet, Dish Network)",
         "**Starlink installation**",
