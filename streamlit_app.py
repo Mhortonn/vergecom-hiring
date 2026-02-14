@@ -1,66 +1,178 @@
-
 import streamlit as st
-import google.generativeai as genai
+import sqlite3
+import pandas as pd
+from datetime import datetime
 
 # --- PAGE CONFIGURATION ---
-st.set_page_config(page_title="Skill Assessment", page_icon="📝")
+st.set_page_config(
+    page_title="Vergecom Hiring",
+    page_icon="🚀",
+    layout="centered"
+)
 
-# --- SESSION STATE SETUP ---
-if "step" not in st.session_state:
-    st.session_state.step = 1
-if "selected_skills" not in st.session_state:
-    st.session_state.selected_skills = []
+# --- DATABASE SETUP ---
+def init_db():
+    conn = sqlite3.connect('candidates.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS candidates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            phone TEXT,
+            skills TEXT,
+            timestamp TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def add_candidate(name, phone, skills_list):
+    conn = sqlite3.connect('candidates.db')
+    c = conn.cursor()
+    # Convert list to string
+    skills_str = ", ".join(skills_list)
+    date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    c.execute('INSERT INTO candidates (name, phone, skills, timestamp) VALUES (?, ?, ?, ?)', 
+              (name, phone, skills_str, date_str))
+    conn.commit()
+    conn.close()
+
+def get_all_candidates():
+    conn = sqlite3.connect('candidates.db')
+    df = pd.read_sql_query("SELECT * FROM candidates", conn)
+    conn.close()
+    return df
+
+# Initialize DB on first run
+init_db()
+
+# --- SIDEBAR (ADMIN LOGIN) ---
+with st.sidebar:
+    st.header("🔧 Admin Login")
+    admin_password = st.text_input("Enter Password", type="password")
+    
+    # Simple password protection (You can change "admin123")
+    if admin_password == "admin123":
+        st.success("Logged in as Admin")
+        admin_mode = True
+    else:
+        admin_mode = False
 
 # ==========================================
-# PAGE 1: SKILLS SELECTION (Like your Image)
+# VIEW 1: ADMIN PANEL (THE LIST)
 # ==========================================
-if st.session_state.step == 1:
+if admin_mode:
+    st.title("📋 Candidate List")
     
-    # 1. The Progress Bar (16% completed)
-    st.progress(16, text="16% completed")
+    df = get_all_candidates()
     
-    # 2. The Header Text
-    st.subheader("You didn't select any installation experience.")
-    st.write("Please select at least one option or specify if you have other experience.")
+    if df.empty:
+        st.info("No applications received yet.")
+    else:
+        # Show data table
+        st.dataframe(
+            df,
+            column_config={
+                "name": "Name",
+                "phone": "Phone Number",
+                "skills": "Experience",
+                "timestamp": "Time Applied"
+            },
+            hide_index=True,
+            use_container_width=True
+        )
+        
+        # Download Button
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download as CSV",
+            data=csv,
+            file_name='vergecom_candidates.csv',
+            mime='text/csv',
+        )
+
+# ==========================================
+# VIEW 2: CANDIDATE FORM (THE APP)
+# ==========================================
+else:
+    # --- JOB HEADER ---
+    st.title("🚀 Vergecom Hiring Portal")
+
+    # The Job Card
+    with st.container(border=True):
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.write("### 📡 **Field Technician / Installer**")
+            st.write("We are looking for experienced installers for **Satellite**, **Starlink**, and **A/V systems**.")
+            st.caption("📍 **Location:** Greater Metro Area | 🕒 **Type:** Contract/Full-time")
+        
+        with col2:
+            st.metric(label="Est. Weekly Pay", value="$1,200 - $1,800")
+
+    with st.expander("▶ Show Requirements & Tools Needed"):
+        st.write("""
+        * **Vehicle:** Must have a truck/van capable of carrying a 28ft ladder.
+        * **Tools:** Drill, signal meter, hand tools, PPE.
+        * **Experience:** Prior experience with coax/cat5 cabling preferred.
+        """)
+
+    st.divider()
+
+    # --- THE FORM ---
+    st.progress(16, text="**16% completed**")
+
+    st.subheader("Installation Experience")
+    st.write("Please select at least one option to continue.")
+
+    # 1. Name & Contact
+    col_a, col_b = st.columns(2)
+    with col_a:
+        candidate_name = st.text_input("**Full Name**", placeholder="e.g. John Smith")
+    with col_b:
+        candidate_phone = st.text_input("**Phone Number**", placeholder="e.g. 555-0199")
+
+    st.write("") # Spacer
+
+    # 2. Skills (Bold Boxes)
+    st.write("**Select your skills:**")
     
-    st.write("**Select one or more**")
-    
-    # 3. The Options (Styled as Cards)
-    # We use 'border=True' to make them look like the boxes in your screenshot
-    
-    skills_list = [
-        "Satellite systems (DirecTV, HughesNet, Dish Network)",
-        "Starlink installation",
-        "TV mounting",
-        "Security camera installation",
-        "Home theater/audio systems",
-        "Low voltage wiring (Cat5/Cat6/Coax)"
+    skills_options = [
+        "**Satellite systems** (DirecTV, HughesNet, Dish Network)",
+        "**Starlink installation**",
+        "**TV mounting**",
+        "**Security camera installation**",
+        "**Home theater/audio systems**",
+        "**Low voltage wiring** (Cat5/Cat6/Coax)"
     ]
     
-    selected = []
+    selected_skills = []
     
-    # This loop creates the "Card" look
-    for skill in skills_list:
+    for skill in skills_options:
         with st.container(border=True):
-            # Checkbox inside a border box
-            is_checked = st.checkbox(skill, key=skill)
-            if is_checked:
-                selected.append(skill)
-    
-    # 4. The "Next" Button
-    st.write("") # Spacer
-    if st.button("Continue to Interview ➤", type="primary", use_container_width=True):
-        if not selected:
-            st.error("Please select at least one skill to continue.")
-        else:
-            st.session_state.selected_skills = selected
-            st.session_state.step = 2
-            st.rerun()
+            # We use the full bold text for the label
+            if st.checkbox(skill):
+                # We strip the ** markers when saving to DB so it looks clean in Excel
+                clean_skill = skill.replace("**", "")
+                selected_skills.append(clean_skill)
 
-# ==========================================
-# PAGE 2: THE AI INTERVIEWER
-# ==========================================
-elif st.session_state.step == 2:
+    st.write("") # Spacer
+
+    # 3. Submit Button
+    if st.button("Submit Application ➤", type="primary", use_container_width=True):
+        if not candidate_name or not candidate_phone:
+            st.error("⚠️ Please fill in your Name and Phone Number.")
+        elif not selected_skills:
+            st.error("⚠️ Please select at least one skill.")
+        else:
+            # Save to Database
+            add_candidate(candidate_name, candidate_phone, selected_skills)
+            
+            # Success Message
+            st.balloons()
+            st.success("✅ Application Received!")
+            st.write(f"Thank you, **{candidate_name}**. Our hiring team will contact you at **{candidate_phone}** shortly.")elif st.session_state.step == 2:
     
     # Setup Sidebar with API Key
     with st.sidebar:
