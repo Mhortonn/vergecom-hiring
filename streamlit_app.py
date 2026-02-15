@@ -36,18 +36,39 @@ st.markdown("""
     /* Company header */
     .company-header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
         border-bottom: 2px solid #000000;
         padding-bottom: 30px;
     }
     
     .company-name {
         color: #000000;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 600;
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
         text-transform: uppercase;
         margin-bottom: 15px;
+    }
+    
+    /* New styles for the white space */
+    .starlink-title {
+        color: #000000;
+        font-size: 48px;
+        font-weight: 700;
+        margin: 5px 0 5px 0;
+        line-height: 1.2;
+        text-align: center;
+        letter-spacing: -0.02em;
+    }
+    
+    .vergecom-llc {
+        color: #000000;
+        font-size: 24px;
+        font-weight: 400;
+        margin-top: 5px;
+        opacity: 0.8;
+        text-align: center;
+        letter-spacing: 1px;
     }
     
     .job-title {
@@ -259,6 +280,13 @@ st.markdown("""
         background-color: #000000 !important;
         color: #FFFFFF !important;
     }
+    
+    /* White space styling */
+    .white-space-content {
+        text-align: center;
+        padding: 20px 0 30px 0;
+        margin-bottom: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -279,8 +307,8 @@ def init_db():
 def save_applicant(data, status):
     conn = sqlite3.connect('vergecom_candidates.db')
     c = conn.cursor()
-    c.execute("INSERT INTO applicants (name, phone, email, status, skills, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
-              (data['name'], data['phone'], data['email'], status, str(data.get('skills', [])), datetime.now()))
+    c.execute("INSERT INTO applicants (name, phone, status, skills, timestamp) VALUES (?, ?, ?, ?, ?)",
+              (data['name'], data['phone'], status, str(data.get('skills', [])), datetime.now()))
     conn.commit()
     conn.close()
 
@@ -295,11 +323,18 @@ if st.session_state.page == 'landing':
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     st.markdown('<div class="corporate-card">', unsafe_allow_html=True)
     
-    # Company header
+    # White space content with Starlink Installation Technician and Vergecom LLC
+    st.markdown("""
+        <div class="white-space-content">
+            <div class="starlink-title">STARLINK INSTALLATION TECHNICIAN</div>
+            <div class="vergecom-llc">VERGECOM LLC</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Company header (slightly modified)
     st.markdown("""
         <div class="company-header">
-            <div class="company-name">VERGECOM</div>
-            <h1 class="job-title">Field Service Technician</h1>
+            <div class="company-name">FIELD SERVICE TECHNICIAN</div>
             <div class="job-type">Independent Contractor • 1099 Position</div>
         </div>
     """, unsafe_allow_html=True)
@@ -309,7 +344,7 @@ if st.session_state.page == 'landing':
     st.markdown("""
         <p class="body-text">
             Vergecom is seeking professional, self-motivated Field Technicians to join our network of installation experts. 
-            In this <strong>1099 Independent Contractor</strong> role, you'll install and service satellite systems for 
+            In this <strong>1099 Independent Contractor</strong> role, you'll install and service Starlink satellite systems for 
             residential and commercial customers. This position offers flexibility, autonomy, and uncapped earning potential 
             through our performance-based compensation model.
         </p>
@@ -319,10 +354,10 @@ if st.session_state.page == 'landing':
     st.markdown('<div class="section-title">Key Responsibilities</div>', unsafe_allow_html=True)
     st.markdown("""
         <ul class="corporate-list">
-            <li><strong>Site Assessment:</strong> Conduct thorough site surveys to determine optimal equipment placement</li>
-            <li><strong>Installation:</strong> Mount hardware on roofs, siding, and poles using industry-standard techniques</li>
+            <li><strong>Site Assessment:</strong> Conduct thorough site surveys to determine optimal Starlink equipment placement</li>
+            <li><strong>Installation:</strong> Mount Starlink hardware on roofs, siding, and poles using industry-standard techniques</li>
             <li><strong>Cabling:</strong> Route and terminate cables professionally, ensuring clean and secure installations</li>
-            <li><strong>Configuration:</strong> Set up network equipment and verify system connectivity and performance</li>
+            <li><strong>Configuration:</strong> Set up Starlink network equipment and verify system connectivity and performance</li>
             <li><strong>Troubleshooting:</strong> Diagnose and resolve signal issues and connectivity problems on-site</li>
             <li><strong>Documentation:</strong> Complete job reports and maintain accurate equipment inventory</li>
         </ul>
@@ -345,7 +380,7 @@ if st.session_state.page == 'landing':
     st.markdown('<div class="section-title">Schedule & Territory</div>', unsafe_allow_html=True)
     st.markdown("""
         <p class="body-text">
-            Work is dispatched within the Greater Metropolitan Area. Technicians complete an average of 3-6 installations per day.
+            Work is dispatched within the Greater Metropolitan Area. Technicians complete an average of 3-6 Starlink installations per day.
             You control your schedule—choose the days and hours that work best for you. Weekend availability can increase earnings.
         </p>
     """, unsafe_allow_html=True)
@@ -375,8 +410,8 @@ elif st.session_state.page == 'application':
     
     # Form header
     st.markdown("""
-        <div class="form-title">Installer Application</div>
-        <div class="form-subtitle">Please complete all information below</div>
+        <div class="form-title">Starlink Installer Application</div>
+        <div class="form-subtitle">Vergecom LLC • Please complete all information below</div>
     """, unsafe_allow_html=True)
     
     # Contact Information
@@ -429,14 +464,14 @@ elif st.session_state.page == 'application':
         if not name or not phone or experience == "Select" or vehicle == "No" or ladder == "No":
             st.error("⚠️ Please complete all required fields and ensure you meet the minimum requirements.")
         else:
-            data = {"name": name, "phone": phone, "email": email, "skills": [], "experience": experience}
+            data = {"name": name, "phone": phone, "skills": [], "experience": experience}
             save_applicant(data, "QUALIFIED")
             
             st.balloons()
             st.markdown(f"""
                 <div class="success-container">
                     <div class="success-title">Application Received</div>
-                    <div class="success-text">Thank you, {name}. A Vergecom representative will contact you at <strong>{phone}</strong> within 2 business days.</div>
+                    <div class="success-text">Thank you, {name}. A Vergecom LLC representative will contact you at <strong>{phone}</strong> within 2 business days.</div>
                 </div>
             """, unsafe_allow_html=True)
             
