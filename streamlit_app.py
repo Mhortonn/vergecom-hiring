@@ -12,8 +12,7 @@ st.markdown("""
     
     /* 1. DARK SATELLITE BACKGROUND */
     .stApp {
-        /* High-quality Dark Satellite Orbit Image */
-        background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), 
+        background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.85)), 
                           url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
         background-size: cover;
         background-position: center;
@@ -29,17 +28,18 @@ st.markdown("""
     
     /* 3. WHITE CARD DESIGN */
     .job-card {
-        background-color: rgba(255, 255, 255, 0.95);
+        background-color: rgba(255, 255, 255, 0.98);
         border-radius: 12px;
         padding: 40px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        text-align: left; /* Aligned left for better reading */
         margin-bottom: 30px;
+        border-top: 6px solid #0066FF;
     }
 
     /* 4. BLACK BUTTON (BECOME A TECHNICIAN) */
     .stButton button {
-        background-color: #000000 !important; /* Pure Black */
+        background-color: #000000 !important;
         color: white !important;
         font-size: 18px !important;
         font-weight: 700 !important;
@@ -51,7 +51,7 @@ st.markdown("""
         transition: all 0.2s ease;
     }
     .stButton button:hover {
-        background-color: #333333 !important; /* Dark Grey Hover */
+        background-color: #333333 !important;
         transform: scale(1.01);
         box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
@@ -63,8 +63,37 @@ st.markdown("""
         color: #111827;
         border-radius: 6px;
     }
+
+    /* 6. TEXT FORMATTING */
+    .job-section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #E5E7EB;
+        padding-bottom: 5px;
+    }
+    .job-text {
+        color: #4B5563;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    .job-list {
+        margin: 0; 
+        padding-left: 20px; 
+        color: #4B5563; 
+        font-size: 15px; 
+        line-height: 1.6;
+    }
+    .job-list li {
+        margin-bottom: 6px;
+    }
     
-    /* 6. HIDE DEFAULT STREAMLIT MENU */
+    /* HIDE MENU */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -96,43 +125,54 @@ def save_applicant(data, status):
 init_db()
 
 # ==========================================
-# PAGE 1: LANDING PAGE (JOB DESCRIPTION)
+# PAGE 1: LANDING PAGE (FULL JOB DESCRIPTION)
 # ==========================================
 if st.session_state.page == 'landing':
     
     st.write("") # Spacer
 
-    # THE MAIN CARD
+    # THE MAIN JOB CARD
     st.markdown("""
     <div class="job-card">
-        <h1 style="margin-bottom: 10px; font-size: 38px;">Starlink Technician</h1>
-        <p style="color: #4B5563; font-size: 16px; margin-bottom: 30px;">
-            Vergecom is hiring experienced <strong>Independent Contractors (1099)</strong><br>
-            for high-volume residential & commercial installations.
+        <h1 style="text-align: center; font-size: 36px; margin-bottom: 5px;">Starlink Technician</h1>
+        <p style="text-align: center; color: #6B7280; font-weight: 500; font-size: 16px; margin-bottom: 30px;">
+            Independent Contractor (1099) | High-Volume Installations
         </p>
 
-        <div style="display: flex; justify-content: center; gap: 40px; margin-bottom: 30px;">
-            <div style="text-align: center;">
-                <div style="font-size: 24px;">💰</div>
-                <h3 style="margin: 5px 0 0 0; font-size: 18px; color: #111;">Pay</h3>
-                <p style="margin: 0; color: #666; font-weight: 500;">$1,200 - $1,800 / week</p>
-            </div>
-            <div style="text-align: center;">
-                <div style="font-size: 24px;">📍</div>
-                <h3 style="margin: 5px 0 0 0; font-size: 18px; color: #111;">Location</h3>
-                <p style="margin: 0; color: #666; font-weight: 500;">Greater Metro Area</p>
-            </div>
+        <div style="background: #F3F4F6; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 25px;">
+            <strong style="color: #059669; font-size: 18px;">💰 Est. Pay: $1,200 - $1,800 / week</strong>
         </div>
 
-        <div style="background-color: #F3F4F6; padding: 25px; border-radius: 10px; text-align: left; border-left: 5px solid #000;">
-            <strong style="color: #000; font-size: 16px; display: block; margin-bottom: 10px;">REQUIREMENTS:</strong>
-            <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 15px; line-height: 1.6;">
-                <li>Must have reliable <strong>Truck, Van, or SUV</strong>.</li>
-                <li>Must have <strong>28ft Extension Ladder</strong>.</li>
-                <li>Must have basic power tools (Drill, Impact, Hand Tools).</li>
-                <li>Valid Driver's License & General Liability Insurance required.</li>
-            </ul>
-        </div>
+        <div class="job-section-title">About the Role</div>
+        <p class="job-text">
+            Vergecom is looking for professional, self-motivated Field Technicians to install, service, and upgrade Starlink satellite systems for residential and commercial customers. 
+            This is a <strong>1099 Independent Contractor</strong> position offering flexibility and high earning potential based on piece-rate pay.
+        </p>
+
+        <div class="job-section-title">Key Responsibilities</div>
+        <ul class="job-list">
+            <li>Perform site surveys to determine the optimal placement for satellite dishes.</li>
+            <li>Mount hardware on roofs, siding, or poles using professional techniques (drilling, sealing, lag bolting).</li>
+            <li>Route cabling cleanly from the exterior to the interior of the home (drilling, fishing walls, tacking cable).</li>
+            <li>Configure routers and assist customers with app setup and Wi-Fi connectivity.</li>
+            <li>Troubleshoot and resolve signal or connectivity issues on-site.</li>
+            <li>Maintain accurate inventory of equipment and report job status via mobile app.</li>
+        </ul>
+
+        <div class="job-section-title">Requirements</div>
+        <ul class="job-list">
+            <li><strong>Vehicle:</strong> Must own a reliable Truck, Van, or SUV capable of carrying a ladder.</li>
+            <li><strong>Ladder:</strong> Must own a 28ft fiberglass extension ladder.</li>
+            <li><strong>Tools:</strong> Must possess standard installation tools (Power Drill, Impact Driver, Spade Bits, Hand Tools, Cable Stapler).</li>
+            <li><strong>Smart Device:</strong> Must have a smartphone (iOS or Android) with a data plan for dispatch apps.</li>
+            <li><strong>Legal:</strong> Valid Driver's License and General Liability Insurance (or willingness to obtain).</li>
+            <li><strong>Skills:</strong> Comfort working at heights, on roofs, and in crawl spaces/attics.</li>
+        </ul>
+        
+        <div class="job-section-title">Schedule & Territory</div>
+        <p class="job-text">
+            Routes are dispatched daily within the Greater Metro Area. Technicians typically complete 3-6 jobs per day. Weekend availability is a plus.
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -148,7 +188,7 @@ if st.session_state.page == 'landing':
 # ==========================================
 elif st.session_state.page == 'application':
 
-    # Back Button (Simple text link style)
+    # Back Button
     if st.button("← Back"):
         st.session_state.page = 'landing'
         st.rerun()
@@ -170,7 +210,6 @@ elif st.session_state.page == 'application':
     ]
     TOOLS_LIST = ["Power drill", "Crimper tools", "Cable tester", "Fish tape", "Stud finder", "Signal meter"]
     
-    # Use standard Streamlit containers (they look like white cards due to our CSS)
     with st.container(border=True):
         st.subheader("👤 Contact Info")
         name = st.text_input("Full Name *")
