@@ -30,9 +30,9 @@ st.markdown("""
     .job-card {
         background-color: rgba(255, 255, 255, 0.98);
         border-radius: 12px;
-        padding: 40px;
+        padding: 50px 40px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-        text-align: left; /* Aligned left for better reading */
+        text-align: center;
         margin-bottom: 30px;
         border-top: 6px solid #0066FF;
     }
@@ -64,35 +64,6 @@ st.markdown("""
         border-radius: 6px;
     }
 
-    /* 6. TEXT FORMATTING */
-    .job-section-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #111827;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid #E5E7EB;
-        padding-bottom: 5px;
-    }
-    .job-text {
-        color: #4B5563;
-        font-size: 15px;
-        line-height: 1.6;
-        margin-bottom: 15px;
-    }
-    .job-list {
-        margin: 0; 
-        padding-left: 20px; 
-        color: #4B5563; 
-        font-size: 15px; 
-        line-height: 1.6;
-    }
-    .job-list li {
-        margin-bottom: 6px;
-    }
-    
     /* HIDE MENU */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -125,7 +96,7 @@ def save_applicant(data, status):
 init_db()
 
 # ==========================================
-# PAGE 1: LANDING PAGE (FULL JOB DESCRIPTION)
+# PAGE 1: LANDING PAGE (CLEAN SUMMARY)
 # ==========================================
 if st.session_state.page == 'landing':
     
@@ -134,45 +105,19 @@ if st.session_state.page == 'landing':
     # THE MAIN JOB CARD
     st.markdown("""
     <div class="job-card">
-        <h1 style="text-align: center; font-size: 36px; margin-bottom: 5px;">Starlink Technician</h1>
-        <p style="text-align: center; color: #6B7280; font-weight: 500; font-size: 16px; margin-bottom: 30px;">
-            Independent Contractor (1099) | High-Volume Installations
+        <h1 style="margin-bottom: 10px; font-size: 42px;">Starlink Technician</h1>
+        <p style="color: #6B7280; font-weight: 500; font-size: 16px; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 1px;">
+            Independent Contractor (1099)
         </p>
 
-        <div style="background: #F3F4F6; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 25px;">
-            <strong style="color: #059669; font-size: 18px;">💰 Est. Pay: $1,200 - $1,800 / week</strong>
+        <p style="color: #374151; font-size: 18px; line-height: 1.8; margin-bottom: 40px;">
+            We are seeking professional field technicians to install next-generation satellite internet for residential and commercial clients. 
+            Join our network to receive daily routes, high volume work, and competitive piece-rate pay in your local area.
+        </p>
+
+        <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; display: inline-block;">
+            <strong style="color: #059669; font-size: 20px;">💰 Est. Pay: $1,200 - $1,800 / week</strong>
         </div>
-
-        <div class="job-section-title">About the Role</div>
-        <p class="job-text">
-            Vergecom is looking for professional, self-motivated Field Technicians to install, service, and upgrade Starlink satellite systems for residential and commercial customers. 
-            This is a <strong>1099 Independent Contractor</strong> position offering flexibility and high earning potential based on piece-rate pay.
-        </p>
-
-        <div class="job-section-title">Key Responsibilities</div>
-        <ul class="job-list">
-            <li>Perform site surveys to determine the optimal placement for satellite dishes.</li>
-            <li>Mount hardware on roofs, siding, or poles using professional techniques (drilling, sealing, lag bolting).</li>
-            <li>Route cabling cleanly from the exterior to the interior of the home (drilling, fishing walls, tacking cable).</li>
-            <li>Configure routers and assist customers with app setup and Wi-Fi connectivity.</li>
-            <li>Troubleshoot and resolve signal or connectivity issues on-site.</li>
-            <li>Maintain accurate inventory of equipment and report job status via mobile app.</li>
-        </ul>
-
-        <div class="job-section-title">Requirements</div>
-        <ul class="job-list">
-            <li><strong>Vehicle:</strong> Must own a reliable Truck, Van, or SUV capable of carrying a ladder.</li>
-            <li><strong>Ladder:</strong> Must own a 28ft fiberglass extension ladder.</li>
-            <li><strong>Tools:</strong> Must possess standard installation tools (Power Drill, Impact Driver, Spade Bits, Hand Tools, Cable Stapler).</li>
-            <li><strong>Smart Device:</strong> Must have a smartphone (iOS or Android) with a data plan for dispatch apps.</li>
-            <li><strong>Legal:</strong> Valid Driver's License and General Liability Insurance (or willingness to obtain).</li>
-            <li><strong>Skills:</strong> Comfort working at heights, on roofs, and in crawl spaces/attics.</li>
-        </ul>
-        
-        <div class="job-section-title">Schedule & Territory</div>
-        <p class="job-text">
-            Routes are dispatched daily within the Greater Metro Area. Technicians typically complete 3-6 jobs per day. Weekend availability is a plus.
-        </p>
     </div>
     """, unsafe_allow_html=True)
 
