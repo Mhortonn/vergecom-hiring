@@ -158,12 +158,15 @@ st.markdown("""
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         border-top: 1px solid var(--border-subtle);
+        overflow: hidden;
     }
 
     .metric-cell {
-        padding: 1.25rem 1.5rem;
+        padding: 1.1rem 0.8rem;
         border-right: 1px solid var(--border-subtle);
         position: relative;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .metric-cell:last-child {
@@ -172,27 +175,48 @@ st.markdown("""
 
     .metric-label {
         font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         font-weight: 500;
         color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.06em;
         margin-bottom: 0.3rem;
+        white-space: nowrap;
     }
 
     .metric-value {
         font-family: 'Outfit', sans-serif;
-        font-size: 1.6rem;
+        font-size: 1.3rem;
         font-weight: 700;
         color: var(--text-primary);
         line-height: 1.2;
+        white-space: nowrap;
     }
 
     .metric-sub {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: var(--accent-bright);
         font-weight: 500;
         margin-top: 0.1rem;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+        .metric-cell {
+            padding: 0.9rem 0.6rem;
+        }
+        .metric-value {
+            font-size: 1.1rem;
+        }
+        .metric-label {
+            font-size: 0.5rem;
+        }
+        .hero-title {
+            font-size: 2.6rem;
+        }
+        .hero-content {
+            padding: 2rem 1.25rem 1.5rem;
+        }
     }
 
     /* ── SECTION CARD ── */
@@ -482,7 +506,7 @@ def init_db():
     c = conn.cursor()
     c.execute("""CREATE TABLE IF NOT EXISTS applicants
                  (id INTEGER PRIMARY KEY, name TEXT, phone TEXT, email TEXT,
-                  experience TEXT, vehicle TEXT, ladder TEXT, insurance TEXT,
+                  experience TEXT, exp_types TEXT, vehicle TEXT, ladder TEXT, insurance TEXT,
                   status TEXT, timestamp TEXT)""")
     conn.commit()
     conn.close()
@@ -493,11 +517,11 @@ def save_applicant(data):
     c = conn.cursor()
     c.execute(
         """INSERT INTO applicants
-           (name, phone, email, experience, vehicle, ladder, insurance, status, timestamp)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+           (name, phone, email, experience, exp_types, vehicle, ladder, insurance, status, timestamp)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             data["name"], data["phone"], data["email"], data["experience"],
-            data["vehicle"], data["ladder"], data["insurance"],
+            data["exp_types"], data["vehicle"], data["ladder"], data["insurance"],
             "NEW", datetime.now().isoformat(),
         ),
     )
@@ -532,9 +556,9 @@ if st.session_state.page == "home":
         </div>
         <div class="metric-strip">
             <div class="metric-cell">
-                <div class="metric-label">Earning Potential</div>
-                <div class="metric-value">$1,400</div>
-                <div class="metric-sub">avg / week</div>
+                <div class="metric-label">Earnings</div>
+                <div class="metric-value">$1,200–$1,800</div>
+                <div class="metric-sub">per week</div>
             </div>
             <div class="metric-cell">
                 <div class="metric-label">Availability</div>
@@ -622,9 +646,22 @@ elif st.session_state.page == "apply":
         # — Experience —
         st.markdown('<div class="form-section-label">Experience</div>', unsafe_allow_html=True)
         experience = st.selectbox(
-            "Installation experience",
+            "Years of installation experience",
             ["Less than 1 year", "1–2 years", "3–5 years", "5+ years", "10+ years"],
         )
+
+        st.markdown('<div class="form-section-label" style="margin-top:1rem;">Installation Experience (select all that apply)</div>', unsafe_allow_html=True)
+        col_a, col_b = st.columns(2)
+        with col_a:
+            exp_starlink = st.checkbox("Starlink")
+            exp_directv = st.checkbox("DirecTV")
+            exp_dish = st.checkbox("Dish Network")
+            exp_hughesnet = st.checkbox("HughesNet")
+        with col_b:
+            exp_lowvoltage = st.checkbox("Low Voltage")
+            exp_tvmount = st.checkbox("TV Mounting")
+            exp_cable = st.checkbox("Cable Installation")
+            exp_other = st.checkbox("Other Related")
 
         st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
 
@@ -648,11 +685,21 @@ elif st.session_state.page == "apply":
             elif not vehicle or not ladder:
                 st.error("A vehicle and ladder are required for this role.")
             else:
+                exp_list = []
+                if exp_starlink: exp_list.append("Starlink")
+                if exp_directv: exp_list.append("DirecTV")
+                if exp_dish: exp_list.append("Dish Network")
+                if exp_hughesnet: exp_list.append("HughesNet")
+                if exp_lowvoltage: exp_list.append("Low Voltage")
+                if exp_tvmount: exp_list.append("TV Mounting")
+                if exp_cable: exp_list.append("Cable Installation")
+                if exp_other: exp_list.append("Other")
                 save_applicant({
                     "name": name.strip(),
                     "phone": phone.strip(),
                     "email": email.strip(),
                     "experience": experience,
+                    "exp_types": ", ".join(exp_list) if exp_list else "None selected",
                     "vehicle": "Yes" if vehicle else "No",
                     "ladder": "Yes" if ladder else "No",
                     "insurance": "Yes" if insurance else "No",
