@@ -136,6 +136,9 @@ def save_applicant(data):
             "name": data["name"],
             "phone": data["phone"],
             "email": data["email"],
+            "state": data["state"],
+            "counties": data["counties"],
+            "radius": data["radius"],
             "experience": data["experience"],
             "exp_types": data["exp_types"],
             "vehicle": data["vehicle"],
@@ -252,6 +255,25 @@ elif st.session_state.page == "apply":
             email = st.text_input("Email address")
 
         st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="form-section-label">Service Area *</div>', unsafe_allow_html=True)
+
+        US_STATES = [
+            "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut",
+            "Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa",
+            "Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan",
+            "Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire",
+            "New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio",
+            "Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota",
+            "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia",
+            "Wisconsin","Wyoming"
+        ]
+        state = st.selectbox("State you're located in *", [""] + US_STATES, index=0)
+        counties = st.text_input("County / counties you're willing to work in *",
+                                 placeholder="e.g. Orange, Seminole, Osceola")
+        radius = st.selectbox("How far are you willing to travel? *",
+                              ["", "Up to 25 miles", "Up to 50 miles", "Up to 75 miles", "Up to 100 miles", "100+ miles"], index=0)
+
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
         st.markdown('<div class="form-section-label">Experience</div>', unsafe_allow_html=True)
         experience = st.selectbox("Years of installation experience",
             ["Less than 1 year", "1–2 years", "3–5 years", "5+ years", "10+ years"])
@@ -300,6 +322,12 @@ elif st.session_state.page == "apply":
         if submitted:
             if not name.strip() or not phone.strip():
                 st.error("Name and phone number are required.")
+            elif not state:
+                st.error("Please select your state.")
+            elif not counties.strip():
+                st.error("Please enter the counties you're willing to work in.")
+            elif not radius:
+                st.error("Please select how far you're willing to travel.")
             elif not vehicle or not ladder:
                 st.error("A vehicle and ladder are required for this role.")
             else:
@@ -315,6 +343,7 @@ elif st.session_state.page == "apply":
 
                 result = save_applicant({
                     "name": name.strip(), "phone": phone.strip(), "email": email.strip(),
+                    "state": state, "counties": counties.strip(), "radius": radius,
                     "experience": experience,
                     "exp_types": ", ".join(exp_list) if exp_list else "None selected",
                     "vehicle": "Yes" if vehicle else "No",
