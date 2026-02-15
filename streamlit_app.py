@@ -58,7 +58,7 @@ left_spacer, main_content, right_spacer = st.columns([1, 2, 1])
 
 with main_content:
     
-    # --- HEADER (No Image) ---
+    # --- HEADER ---
     st.title("Starlink Installation Technician")
     st.markdown("**Apply to become a Certified Field Technician**")
     st.info("📋 **Instructions:** Please complete all sections below.")
@@ -135,7 +135,9 @@ with main_content:
             
             c_av1, c_av2 = st.columns(2)
             start_date = c_av1.selectbox("When can you start?", ["Immediately", "Within 1 week", "Within 2 weeks"])
-            emp_type = c_av2.radio("Employment Type", ["Independent Contractor (1099)", "W2 Employee", "Either"], horizontal=True)
+            
+            # UPDATED: Removed W2 Option. Now it only shows 1099.
+            emp_type = c_av2.radio("Employment Type", ["Independent Contractor (1099)"], horizontal=True)
             
             days_avail = st.multiselect("Days Available", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
 
