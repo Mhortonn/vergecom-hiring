@@ -5,6 +5,39 @@ from supabase import create_client
 
 # ── Config ──
 st.set_page_config(page_title="Vergecom | Master Control", page_icon="🏢", layout="wide")
+
+# ── LOGIN GATE ──
+ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD", "vergecom2026")
+
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.markdown("""
+    <style>
+        .stApp { background: #0F172A !important; }
+        #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;} .stDeployButton {display: none;}
+    </style>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 1.5, 1])
+    with col2:
+        st.markdown("<br><br><br>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="text-align:center;margin-bottom:2rem;">
+            <div style="font-size:1.4rem;font-weight:700;color:white;">Verge<span style="color:#60A5FA;">com</span></div>
+            <div style="font-size:0.75rem;color:#64748B;margin-top:0.3rem;">MASTER CONSOLE</div>
+        </div>
+        """, unsafe_allow_html=True)
+        pwd = st.text_input("Enter admin password", type="password", placeholder="Password")
+        if st.button("Sign In", use_container_width=True, type="primary"):
+            if pwd == ADMIN_PASSWORD:
+                st.session_state.authenticated = True
+                st.rerun()
+            else:
+                st.error("Wrong password.")
+    st.stop()
+
 supabase = create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
 
 # ── Styles ──
