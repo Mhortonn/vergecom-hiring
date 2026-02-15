@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import textwrap  # <--- THIS IS THE MAGIC FIX
 from datetime import datetime, timedelta
 
 # ── Config ──
@@ -87,7 +88,7 @@ st.markdown("""
 # ── DATA ──
 @st.cache_data(ttl=5)
 def load_applicants():
-    # We select '*' to get ALL columns, including state/counties/radius
+    # We select '*' to get ALL columns
     res = supabase.table("applicants").select("*").order("created_at", desc=True).execute()
     return res.data or []
 
@@ -110,7 +111,7 @@ with st.sidebar:
         st.cache_data.clear()
         st.rerun()
     
-    # DEBUG MODE: Enable this to see raw data
+    # DEBUG MODE (Only check this if you have issues)
     show_debug = st.checkbox("Show Raw Data (Debug)")
 
 data = load_applicants()
@@ -155,21 +156,20 @@ if st.session_state.view_id:
         st.error("Applicant not found")
         st.stop()
 
-    # DEBUG: Print raw record if checkbox is on
     if show_debug:
         st.warning("DEBUG MODE: Raw Database Record")
         st.json(record)
 
-    # Prep HTML for Detail Card
-    # EXP TAGS
+    # Exp Tags
     exp_tags = " ".join([f'<span class="ac-tag">{t.strip()}</span>' for t in record.get("exp_types","").split(",") if t.strip()]) if record.get("exp_types") != "None selected" else '<span style="color:#9CA3AF;font-size:0.8rem;">None</span>'
     
-    # DATA EXTRACTION WITH FALLBACKS
+    # Data Extraction
     r_state = record.get('state') if record.get('state') else "Not Provided"
     r_radius = f"{record.get('radius')} mi" if record.get('radius') else ""
     r_counties = record.get('counties') if record.get('counties') else "Not Provided"
 
-    st.markdown(f"""
+    # !!! CRITICAL FIX: textwrap.dedent() removes the indentation that was breaking the HTML !!!
+    html_card = textwrap.dedent(f"""
     <div style="background:white;border:1px solid #E5E7EB;border-radius:14px;padding:1.75rem;margin-bottom:1rem;">
         <div style="display:flex;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid #F0F1F3;">
             <div>
@@ -211,7 +211,10 @@ if st.session_state.view_id:
             </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
+
+    # Render
+    st.markdown(html_card, unsafe_allow_html=True)
 
     # Photos
     p1, p2 = record.get("photo1_url"), record.get("photo2_url")
@@ -304,8 +307,8 @@ for i, tab in enumerate(tabs):
                     tags = app.get("exp_types").split(",")
                     exp_short = "".join([f'<span class="ac-tag">{t.strip()}</span>' for t in tags[:2]])
                 
-                # Render Card
-                st.markdown(f"""
+                # HTML Card
+                html_list = textwrap.dedent(f"""
                 <div class="applicant-card">
                     <div>
                         <div class="ac-name">{app.get("name","—")}</div>
@@ -323,9 +326,9 @@ for i, tab in enumerate(tabs):
                     <div style="display:flex;">{equip_html(app)}</div>
                     <div style="font-family:'IBM Plex Mono';font-size:0.7rem;color:#9CA3AF;">{app.get("created_at","")[:10]}</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """)
+                st.markdown(html_list, unsafe_allow_html=True)
 
-                # UNIQUE KEY FIX
                 if st.button("View", key=f"btn_{cat_list[i] or 'all'}_{app['id']}", use_container_width=True):
                     st.session_state.view_id = app["id"]
                     st.rerun()
