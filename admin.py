@@ -23,7 +23,6 @@ STATUS_COLORS = {
 }
 
 # ── Styles ──
-# This section makes the "raw html" look like actual cards
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
@@ -47,7 +46,7 @@ st.markdown("""
     .stApp { background: var(--bg) !important; font-family: 'DM Sans', sans-serif !important; }
     .block-container { padding: 1.5rem 2rem 4rem !important; max-width: 1200px !important; }
 
-    /* ─── CUSTOM CARD STYLES (This fixes the boxes) ─── */
+    /* ─── CUSTOM CARD STYLES ─── */
     .info-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -215,7 +214,7 @@ def equip_html(record):
     return "".join(items)
 
 # ═══════════════════════════════════
-#  DETAIL VIEW (FIXED)
+#  DETAIL VIEW
 # ═══════════════════════════════════
 if st.session_state.view_id is not None:
     # Get the specific applicant record
@@ -232,24 +231,18 @@ if st.session_state.view_id is not None:
     s = record.get("status", "NEW")
     
     # --- PREPARE DATA FOR HTML ---
-    # 1. Experience Tags
     exp_types = record.get("exp_types", "")
     if exp_types and exp_types != "None selected":
         exp_tags_html = " ".join(f'<span class="ac-tag">{t.strip()}</span>' for t in exp_types.split(","))
     else:
         exp_tags_html = '<span style="color:var(--text-3);font-size:0.82rem;">None listed</span>'
     
-    # 2. Equipment Badges
     equip_badges_html = equip_html(record)
-
-    # 3. Location Data
     state = record.get("state", "—")
     counties = record.get("counties", "—")
     radius = record.get("radius", "—")
 
     # --- HTML CONTENT CONSTRUCTION ---
-    # This big string builds the card exactly how you want it to look
-    # IMPORTANT: The classes used here (info-box, ac-tag) match the CSS at the top of the file.
     html_card = f"""
     <div class="detail-card">
         <div class="detail-top">
@@ -307,8 +300,6 @@ if st.session_state.view_id is not None:
     </div>
     """
 
-    # --- RENDER THE CARD ---
-    # unsafe_allow_html=True allows the div/span tags above to actually work
     st.markdown(html_card, unsafe_allow_html=True)
 
     # --- PHOTOS SECTION ---
@@ -451,6 +442,9 @@ for i, tab in enumerate(tabs):
                     <div class="ac-date">{fmt_date_short(app.get("created_at", ""))}</div>
                 </div>
                 """, unsafe_allow_html=True)
-                if st.button(f"View Details", key=f"btn_{app['id']}", use_container_width=True):
+                
+                # --- UNIQUE KEY FIX ---
+                # We use 'i' (tab index) AND 'app[id]' to ensure every button is unique
+                if st.button(f"View Details", key=f"btn_{i}_{app['id']}", use_container_width=True):
                     st.session_state.view_id = app["id"]
                     st.rerun()
