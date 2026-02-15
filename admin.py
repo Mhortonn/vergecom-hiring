@@ -23,6 +23,7 @@ STATUS_COLORS = {
 }
 
 # ── Styles ──
+# I have updated this section with the SPECIFIC CSS you requested
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
@@ -46,6 +47,39 @@ st.markdown("""
 
     .stApp { background: var(--bg) !important; font-family: 'DM Sans', sans-serif !important; }
     .block-container { padding: 1.5rem 2rem 4rem !important; max-width: 1200px !important; }
+
+    /* ── YOUR CUSTOM CSS ── */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 1rem;
+    }
+    .info-box {
+        background-color: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+    }
+    .info-box-title {
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.05em;
+    }
+    .ac-tag {
+        background-color: #007bff;
+        color: white;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        display: inline-block;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    /* ───────────────────── */
 
     /* ── Header ── */
     .dash-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
@@ -73,10 +107,12 @@ st.markdown("""
     .ac-radius { font-size: 0.7rem; color: var(--text-3); }
     .ac-phone { font-size: 0.82rem; color: var(--text-2); font-family: 'IBM Plex Mono', monospace; }
     .ac-exp { font-size: 0.8rem; color: var(--text-2); }
-    .ac-tag { font-size: 0.62rem; font-weight: 500; padding: 0.15rem 0.4rem; border-radius: 4px; background: var(--blue-bg); color: var(--blue); margin-right: 0.25rem; }
+    
+    /* Equipment Pills */
     .equip-pill { font-size: 0.65rem; font-weight: 500; padding: 0.2rem 0.45rem; border-radius: 4px; margin-right: 0.25rem; }
     .equip-yes { background: var(--green-bg); color: var(--green); }
     .equip-no { background: var(--red-bg); color: var(--red); }
+    
     .ac-date { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-3); }
     .s-badge { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; font-weight: 600; padding: 0.25rem 0.55rem; border-radius: 6px; display: inline-block; }
 
@@ -84,9 +120,8 @@ st.markdown("""
     .detail-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 1rem; }
     .detail-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-light); }
     .detail-name { font-size: 1.5rem; font-weight: 700; color: var(--text-1); }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
-    .info-box { background: var(--bg); border: 1px solid var(--border-light); border-radius: 10px; padding: 1.1rem; }
-    .info-box-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.65rem; }
+    
+    /* Info Helpers */
     .info-row { margin-bottom: 0.5rem; }
     .info-label { font-size: 0.68rem; color: var(--text-3); margin-bottom: 0.1rem; }
     .info-value { font-size: 0.88rem; color: var(--text-1); font-weight: 500; }
@@ -106,7 +141,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── DATA ──
-@st.cache_data(ttl=10) # Reduced TTL to 10s to see new columns faster
+@st.cache_data(ttl=10)
 def load_applicants():
     res = supabase.table("applicants").select("*").order("created_at", desc=True).execute()
     return res.data or []
@@ -123,7 +158,7 @@ def delete_applicant(aid):
 if "view_id" not in st.session_state:
     st.session_state.view_id = None
 
-# Clear Cache Button (for when you add columns)
+# Clear Cache Button
 with st.sidebar:
     if st.button("↻ Refresh Data", use_container_width=True):
         st.cache_data.clear()
@@ -172,7 +207,7 @@ def equip_html(record):
         items.append(f'<span class="equip-pill {cls}">{sym} {label}</span>')
     return "".join(items)
 
-# ── DETAIL VIEW (FIXED) ──
+# ── DETAIL VIEW (FIXED HTML RENDERING) ──
 if st.session_state.view_id is not None:
     record = next((r for r in data if str(r["id"]) == str(st.session_state.view_id)), None)
 
@@ -186,17 +221,19 @@ if st.session_state.view_id is not None:
 
     s = record.get("status", "NEW")
     
-    # Prepare HTML strings in Python first (Fixes the nesting issue)
+    # Prepare HTML content
     exp_types = record.get("exp_types", "")
-    exp_tags = " ".join(f'<span class="ac-tag" style="font-size:0.72rem;padding:0.2rem 0.5rem;">{t.strip()}</span>' for t in exp_types.split(",")) if exp_types and exp_types != "None selected" else '<span style="color:var(--text-3);font-size:0.82rem;">None listed</span>'
+    exp_tags = " ".join(f'<span class="ac-tag">{t.strip()}</span>' for t in exp_types.split(",")) if exp_types and exp_types != "None selected" else '<span style="color:var(--text-3);font-size:0.82rem;">None listed</span>'
     
     equip_badges = equip_html(record)
     state = record.get("state", "—")
     counties = record.get("counties", "—")
     radius = record.get("radius", "—")
 
-    # ONE SINGLE MARKDOWN BLOCK FOR THE WHOLE CARD
-    st.markdown(f"""
+    # ----------------------------------------------------
+    #  THIS IS THE CRITICAL FIX: unsafe_allow_html=True
+    # ----------------------------------------------------
+    html_content = f"""
     <div class="detail-card">
         <div class="detail-top">
             <div>
@@ -251,7 +288,8 @@ if st.session_state.view_id is not None:
             </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(html_content, unsafe_allow_html=True)
 
     # Photos
     p1 = record.get("photo1_url", "")
