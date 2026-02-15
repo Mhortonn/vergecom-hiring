@@ -85,8 +85,8 @@ st.markdown("""
     .form-divider { height: 1px; background: var(--border-subtle); margin: 1.25rem 0; }
     .form-section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
 
-    .stTextInput input, .stTextArea textarea { background: var(--bg-input) !important; border: 1px solid var(--border-mid) !important; border-radius: var(--radius-sm) !important; color: var(--text-primary) !important; font-family: 'Sora', sans-serif !important; font-size: 0.88rem !important; padding: 0.65rem 0.9rem !important; }
-    .stTextInput input:focus, .stTextArea textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-glow) !important; }
+    .stTextInput input, .stTextArea textarea, .stNumberInput input { background: var(--bg-input) !important; border: 1px solid var(--border-mid) !important; border-radius: var(--radius-sm) !important; color: var(--text-primary) !important; font-family: 'Sora', sans-serif !important; font-size: 0.88rem !important; padding: 0.65rem 0.9rem !important; }
+    .stTextInput input:focus, .stTextArea textarea:focus, .stNumberInput input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-glow) !important; }
     .stSelectbox div[data-baseweb="select"] { background: var(--bg-input) !important; border-radius: var(--radius-sm) !important; }
     .stSelectbox div[data-baseweb="select"] > div { background: var(--bg-input) !important; border: 1px solid var(--border-mid) !important; border-radius: var(--radius-sm) !important; color: var(--text-primary) !important; font-family: 'Sora', sans-serif !important; font-size: 0.88rem !important; }
     label { color: var(--text-secondary) !important; font-family: 'Sora', sans-serif !important; font-weight: 400 !important; font-size: 0.8rem !important; }
@@ -136,6 +136,9 @@ def save_applicant(data):
             "name": data["name"],
             "phone": data["phone"],
             "email": data["email"],
+            "state": data["state"],          # Added field
+            "counties": data["counties"],    # Added field
+            "radius": data["radius"],        # Added field
             "experience": data["experience"],
             "exp_types": data["exp_types"],
             "vehicle": data["vehicle"],
@@ -252,6 +255,17 @@ elif st.session_state.page == "apply":
             email = st.text_input("Email address")
 
         st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="form-section-label">Coverage Area</div>', unsafe_allow_html=True)
+        
+        # New State Selection Field
+        state = st.selectbox("State applying for *", 
+            ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"])
+        
+        # New Counties and Radius Fields
+        counties = st.text_area("Counties willing to cover *", placeholder="e.g. Orange, Osceola, Seminole...")
+        radius = st.number_input("Mileage radius willing to travel (miles) *", min_value=0, max_value=500, value=50, step=10)
+
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
         st.markdown('<div class="form-section-label">Experience</div>', unsafe_allow_html=True)
         experience = st.selectbox("Years of installation experience",
             ["Less than 1 year", "1–2 years", "3–5 years", "5+ years", "10+ years"])
@@ -300,6 +314,8 @@ elif st.session_state.page == "apply":
         if submitted:
             if not name.strip() or not phone.strip():
                 st.error("Name and phone number are required.")
+            elif not counties.strip():
+                st.error("Please list the counties you are willing to cover.")
             elif not vehicle or not ladder:
                 st.error("A vehicle and ladder are required for this role.")
             else:
@@ -315,6 +331,9 @@ elif st.session_state.page == "apply":
 
                 result = save_applicant({
                     "name": name.strip(), "phone": phone.strip(), "email": email.strip(),
+                    "state": state,             # Added to save data
+                    "counties": counties,       # Added to save data
+                    "radius": radius,           # Added to save data
                     "experience": experience,
                     "exp_types": ", ".join(exp_list) if exp_list else "None selected",
                     "vehicle": "Yes" if vehicle else "No",
