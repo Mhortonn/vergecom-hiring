@@ -114,32 +114,6 @@ st.markdown("""
         font-weight: 700;
     }
     
-    /* Pay highlight */
-    .pay-summary {
-        background-color: #000000;
-        border-radius: 16px;
-        padding: 25px 30px;
-        margin: 30px 0 20px 0;
-        border: 1px solid #000000;
-        text-align: center;
-    }
-    
-    .pay-range {
-        color: #FFFFFF;
-        font-size: 36px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 5px;
-    }
-    
-    .pay-note {
-        color: #FFFFFF;
-        font-size: 16px;
-        font-weight: 400;
-        margin-top: 5px;
-        opacity: 0.9;
-    }
-    
     /* Button styles */
     .stButton button {
         background-color: #000000 !important;
@@ -285,6 +259,19 @@ st.markdown("""
         background-color: #000000 !important;
         color: #FFFFFF !important;
     }
+    
+    /* Earnings text - now just normal text */
+    .earnings-note {
+        color: #000000;
+        font-size: 18px;
+        font-weight: 500;
+        text-align: center;
+        margin: 20px 0 30px 0;
+        padding: 15px;
+        background-color: #F8FAFC;
+        border-radius: 12px;
+        border: 1px solid #000000;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -330,13 +317,7 @@ if st.session_state.page == 'landing':
         </div>
     """, unsafe_allow_html=True)
     
-    # Pay summary (black background with white text)
-    st.markdown("""
-        <div class="pay-summary">
-            <div class="pay-range">$1,200 – $1,800 per week</div>
-            <div class="pay-note">Average weekly earnings for qualified technicians</div>
-        </div>
-    """, unsafe_allow_html=True)
+    <!-- REMOVED PAY BOX - replaced with simple text -->
     
     # About the Role
     st.markdown('<div class="section-title">About the Role</div>', unsafe_allow_html=True)
