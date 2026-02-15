@@ -30,7 +30,7 @@ st.markdown("""
     .job-card {
         background-color: rgba(255, 255, 255, 0.98);
         border-radius: 12px;
-        padding: 50px 40px;
+        padding: 40px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         text-align: left;
         margin-bottom: 30px;
@@ -64,20 +64,45 @@ st.markdown("""
         border-radius: 6px;
     }
 
-    /* 6. TEXT STYLING CLASSES */
-    .job-section-title {
+    /* 6. TYPOGRAPHY FOR JOB CARD */
+    .job-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .job-title {
+        font-size: 38px;
+        color: #0066FF;
+        margin: 0;
+        font-weight: 700;
+    }
+    .job-subtitle {
+        color: #6B7280;
+        font-size: 16px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .pay-box {
+        background: #F3F4F6; 
+        padding: 15px; 
+        border-radius: 8px; 
+        text-align: center; 
+        margin-bottom: 25px;
+        border: 1px solid #E5E7EB;
+    }
+    .section-title {
         font-size: 18px;
         font-weight: 700;
         color: #111827;
         margin-top: 25px;
         margin-bottom: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid #E5E7EB;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #E5E7EB;
         padding-bottom: 5px;
     }
     .job-text {
-        color: #4B5563;
+        color: #374151;
         font-size: 15px;
         line-height: 1.6;
         margin-bottom: 15px;
@@ -85,7 +110,7 @@ st.markdown("""
     .job-list {
         margin: 0; 
         padding-left: 20px; 
-        color: #4B5563; 
+        color: #374151; 
         font-size: 15px; 
         line-height: 1.6;
     }
@@ -131,25 +156,25 @@ if st.session_state.page == 'landing':
     
     st.write("") # Spacer
 
-    # THE MAIN JOB CARD
+    # THE MAIN JOB CARD (Written as one clean HTML block to avoid code-box errors)
     st.markdown("""
     <div class="job-card">
-        <h1 style="text-align: center; font-size: 38px; margin-bottom: 5px;">Starlink Technician</h1>
-        <p style="text-align: center; color: #6B7280; font-weight: 500; font-size: 16px; margin-bottom: 30px;">
-            Independent Contractor (1099) | High-Volume Installations
-        </p>
+        <div class="job-header">
+            <h1 class="job-title">Starlink Technician</h1>
+            <p class="job-subtitle">Independent Contractor (1099)</p>
+        </div>
 
-        <div style="background: #F3F4F6; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 25px;">
+        <div class="pay-box">
             <strong style="color: #059669; font-size: 18px;">💰 Est. Pay: $1,200 - $1,800 / week</strong>
         </div>
 
-        <div class="job-section-title">About the Role</div>
+        <div class="section-title">About the Role</div>
         <p class="job-text">
             Vergecom is looking for professional, self-motivated Field Technicians to install, service, and upgrade Starlink satellite systems for residential and commercial customers. 
             This is a <strong>1099 Independent Contractor</strong> position offering flexibility and high earning potential based on piece-rate pay.
         </p>
 
-        <div class="job-section-title">Key Responsibilities</div>
+        <div class="section-title">Key Responsibilities</div>
         <ul class="job-list">
             <li>Perform site surveys to determine the optimal placement for satellite dishes.</li>
             <li>Mount hardware on roofs, siding, or poles using professional techniques (drilling, sealing, lag bolting).</li>
@@ -159,7 +184,7 @@ if st.session_state.page == 'landing':
             <li>Maintain accurate inventory of equipment and report job status via mobile app.</li>
         </ul>
 
-        <div class="job-section-title">Requirements</div>
+        <div class="section-title">Requirements</div>
         <ul class="job-list">
             <li><strong>Vehicle:</strong> Must own a reliable Truck, Van, or SUV capable of carrying a ladder.</li>
             <li><strong>Ladder:</strong> Must own a 28ft fiberglass extension ladder.</li>
@@ -169,7 +194,7 @@ if st.session_state.page == 'landing':
             <li><strong>Skills:</strong> Comfort working at heights, on roofs, and in crawl spaces/attics.</li>
         </ul>
 
-        <div class="job-section-title">Schedule & Territory</div>
+        <div class="section-title">Schedule & Territory</div>
         <p class="job-text">
             Routes are dispatched daily within the Greater Metro Area. Technicians typically complete 3-6 jobs per day. Weekend availability is a plus.
         </p>
