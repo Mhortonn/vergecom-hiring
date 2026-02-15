@@ -3,16 +3,15 @@ import pandas as pd
 from datetime import datetime
 from supabase import create_client
 
-# ── PAGE CONFIG (MAX WIDGET DENSITY) ──
+# ── PAGE CONFIG (Enterprise Grade) ──
 st.set_page_config(page_title="Vergecom | Ops Control", page_icon="⚙️", layout="wide")
 
-# ── DSI CORPORATE STYLING (Blue Header & Sharp Grid) ──
+# ── DSI CORPORATE STYLING ──
 st.markdown("""
 <style>
     html, body, [class*="st-"] { font-family: 'Segoe UI', Arial, sans-serif; }
     .stApp { background-color: #F8FAFC; }
     
-    /* DSI Corporate Blue Header */
     .portal-header {
         background-color: #00539B;
         color: white;
@@ -24,8 +23,6 @@ st.markdown("""
         display: flex;
         justify-content: space-between;
     }
-    
-    /* Remove padding to fit more data */
     .block-container { padding-top: 1rem !important; }
 </style>
 <div class="portal-header">
@@ -39,73 +36,84 @@ SUPABASE_URL = st.secrets.get("SUPABASE_URL")
 SUPABASE_KEY = st.secrets.get("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ── DATA RECOVERY (FAIL-SAFE) ──
+# ── DATA FETCHING WITH TYPE-CLEANING (CRITICAL FIX) ──
 @st.cache_data(ttl=2)
-def get_master_data():
+def get_ops_data():
     res = supabase.table("applicants").select("*").order("created_at", desc=True).execute()
     if not res.data: return pd.DataFrame()
     
     df = pd.DataFrame(res.data)
-    # FIX: Ensure radius is always a number and handle NULLs to prevent st.data_editor crash
+    
+    # FIX: Force 'radius' to be numeric and fill empty values with 0
+    # This prevents the StreamlitAPIException type mismatch error
     if 'radius' in df.columns:
         df['radius'] = pd.to_numeric(df['radius'], errors='coerce').fillna(0).astype(int)
+    
+    # Ensure other columns are strings to prevent display issues
+    cols_to_str = ['state', 'counties', 'status', 'notes']
+    for col in cols_to_str:
+        if col in df.columns:
+            df[col] = df[col].fillna("Not Provided").astype(str)
+            
     return df
 
-df = get_master_data()
+df = get_ops_data()
 
-# ── 1-CLICK TOP FILTERS ──
+# ── FILTERS (DSI STYLE) ──
 with st.container():
-    f1, f2, f3, f4 = st.columns([2, 1, 1, 0.8])
-    with f1: s_name = st.text_input("Technician / County Search", placeholder="Filter registry...")
-    with f2: s_state = st.selectbox("State", ["All"] + sorted(df['state'].unique().tolist()) if not df.empty else ["All"])
-    with f3: s_status = st.selectbox("Assignment Status", ["All", "NEW", "REVIEWED", "HIRED", "REJECTED"])
-    with f4: st.write(""); st.button("Apply Filters", use_container_width=True)
+    c1, c2, c3, c4 = st.columns([2, 1, 1, 0.8])
+    with c1: search_name = st.text_input("Search Registry", placeholder="Name, Phone, or County...")
+    with c2: search_state = st.selectbox("State Filter", ["All States"] + (sorted(df['state'].unique().tolist()) if not df.empty else []))
+    with c3: search_status = st.selectbox("Assignment Status", ["All", "NEW", "REVIEWED", "HIRED", "REJECTED"])
+    with c4: st.write(""); st.button("Apply Filters", use_container_width=True)
 
-# ── FULL TEXT DISPLAY GRID (NO CLICKS NEEDED) ──
+# ── MASTER DATA GRID (NO CLICKS NEEDED) ──
 if not df.empty:
-    # Filter Logic
     f_df = df.copy()
-    if s_name: f_df = f_df[f_df['name'].str.contains(s_name, case=False) | f_df['counties'].str.contains(s_name, case=False)]
-    if s_state != "All": f_df = f_df[f_df['state'] == s_state]
-    if s_status != "All": f_df = f_df[f_df['status'] == s_status]
+    if search_name:
+        f_df = f_df[f_df['name'].str.contains(search_name, case=False, na=False) | 
+                    f_df['counties'].str.contains(search_name, case=False, na=False)]
+    if search_state != "All States":
+        f_df = f_df[f_df['state'] == search_state]
+    if search_status != "All":
+        f_df = f_df[f_df['status'] == search_status]
 
-    st.write(f"**Technicians in Pipeline:** {len(f_df)}")
-
-    # ── THE DATA EDITOR (EVERYTHING DISPLAYED AT ONCE) ──
-    # User can edit 'Status' and 'Admin Notes' directly in the table
-    edited_data = st.data_editor(
-        f_df[['id', 'name', 'phone', 'email', 'state', 'counties', 'radius', 'experience', 'status', 'notes', 'created_at']],
+    st.write(f"**Records Found:** {len(f_df)}")
+    
+    # THE DATA EDITOR (Click cells to edit instantly)
+    # This renders all info in one big corporate-style table
+    edited_df = st.data_editor(
+        f_df[['id', 'name', 'phone', 'state', 'counties', 'radius', 'experience', 'status', 'notes', 'created_at']],
         use_container_width=True,
         height=550,
         hide_index=True,
         column_config={
-            "id": None, # Keep hidden
+            "id": None, # Hide ID
             "name": st.column_config.TextColumn("Technician Name", width="medium"),
-            "phone": st.column_config.TextColumn("Contact Info", width="small"),
-            "email": st.column_config.TextColumn("Email Address", width="medium"),
+            "phone": "Contact Info",
             "state": "Region",
             "counties": st.column_config.TextColumn("Assigned Counties", width="large"),
             "radius": st.column_config.NumberColumn("Radius (mi)", format="%d"),
             "status": st.column_config.SelectboxColumn("Status", options=["NEW", "REVIEWED", "CONTACTED", "HIRED", "REJECTED"], required=True),
-            "notes": st.column_config.TextColumn("Operational Notes (Editable)", width="large"),
+            "notes": st.column_config.TextColumn("Admin Notes (Editable)", width="large"),
             "created_at": st.column_config.DatetimeColumn("Registered", format="MM/DD/YY"),
         }
     )
 
-    # ── FINAL ACTION: THE SYNC BUTTON ──
+    # ── SYNC BUTTON (CLICK #2) ──
     if st.button("💾 SYNC SYSTEM CHANGES", type="primary", use_container_width=True):
-        # Only update if something actually changed
-        for index, row in edited_data.iterrows():
-            orig = df[df['id'] == row['id']].iloc[0]
-            if row['status'] != orig['status'] or row['notes'] != orig['notes']:
+        # Update only the edited rows
+        for index, row in edited_df.iterrows():
+            # Get original version to check for changes
+            original_row = df[df['id'] == row['id']].iloc[0]
+            if row['status'] != original_row['status'] or row['notes'] != original_row['notes']:
                 supabase.table("applicants").update({
                     "status": row['status'],
                     "notes": row['notes']
                 }).eq("id", row['id']).execute()
         
-        st.success("Operational Record Synchronized.")
+        st.success("System Synchronized.")
         st.cache_data.clear()
         st.rerun()
-
 else:
-    st.error("Registry Empty: Unable to reach technician database.")
+    st.error("No data found in Supabase. Check your connection.")
