@@ -3,268 +3,376 @@ import sqlite3
 from datetime import datetime
 
 # --- CONFIGURATION ---
-st.set_page_config(page_title="Vergecom Careers", page_icon="📡", layout="centered")
+st.set_page_config(page_title="Vergecom | Starlink Technician", page_icon="🛰️", layout="centered")
 
-# --- ULTRA-PREMIUM CORPORATE CSS ---
+# --- CLEAN, MODERN CSS ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     .stApp {
-        background: radial-gradient(circle at top right, #111827, #05070A);
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: #94A3B8;
+        background: #0A0A0A;
+        font-family: 'Inter', sans-serif;
     }
 
     .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 5rem !important;
-        max-width: 800px !important;
+        padding-top: 1rem !important;
+        padding-bottom: 3rem !important;
+        max-width: 700px !important;
     }
 
-    .premium-card {
-        background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        padding: 3rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        margin-bottom: 2rem;
+    .main-card {
+        background: #111111;
+        border: 1px solid #222222;
+        border-radius: 20px;
+        padding: 2rem;
     }
 
     h1 {
         color: #FFFFFF !important;
-        font-size: 3.5rem !important;
-        font-weight: 800 !important;
-        letter-spacing: -0.04em !important;
-        line-height: 1.1 !important;
-        margin-top: 0 !important;
+        font-size: 2.8rem !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.02em !important;
         margin-bottom: 0.5rem !important;
     }
-    
-    .company-tag {
-        color: #3B82F6;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        font-size: 0.85rem;
-        margin-bottom: 1rem;
-        display: block;
+
+    h2 {
+        color: #FFFFFF !important;
+        font-size: 1.4rem !important;
+        font-weight: 500 !important;
+        margin: 1.5rem 0 1rem 0 !important;
     }
 
-    .subtitle {
-        color: #64748B;
-        font-size: 1.25rem;
-        font-weight: 400;
-        margin-bottom: 2rem;
-    }
-
-    .section-header {
-        color: #FFFFFF;
+    .badge {
+        background: #1A5CFF;
+        color: white;
         font-size: 0.75rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        margin-top: 2.5rem;
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 100px;
+        display: inline-block;
+        margin-bottom: 1rem;
+        letter-spacing: 0.3px;
     }
 
-    .info-grid-container {
+    .stats-grid {
         display: flex;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        gap: 1rem;
+        margin: 2rem 0;
     }
-    
-    .info-box {
+
+    .stat-box {
+        background: #1A1A1A;
+        border: 1px solid #2A2A2A;
+        border-radius: 12px;
+        padding: 1rem;
         flex: 1;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 16px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
     }
-    
-    .info-box-label {
-        color: #64748B;
-        font-size: 0.7rem;
-        font-weight: 700;
+
+    .stat-label {
+        color: #888888;
+        font-size: 0.75rem;
+        font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
     }
-    
-    .info-box-value {
+
+    .stat-value {
         color: #FFFFFF;
-        font-size: 1.1rem;
-        font-weight: 700;
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.2;
     }
 
-    .long-description {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #94A3B8;
-        margin: 2rem 0 2.5rem 0;
-        padding: 1.5rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 20px;
-        border-left: 4px solid #3B82F6;
-        font-weight: 400;
-        letter-spacing: 0.01em;
+    .stat-note {
+        color: #1A5CFF;
+        font-size: 0.7rem;
+        font-weight: 500;
     }
 
-    .requirement-item {
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: 0.75rem;
-        color: #94A3B8;
+    .job-description {
+        color: #CCCCCC;
         font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 1.5rem 0;
+        padding: 1rem 0;
+        border-top: 1px solid #222222;
+        border-bottom: 1px solid #222222;
     }
-    
-    .requirement-item::before {
-        content: "→";
-        color: #3B82F6;
+
+    .list-header {
+        color: #FFFFFF;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .list-item {
+        color: #AAAAAA;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .list-item:before {
+        content: "•";
+        color: #1A5CFF;
+        font-weight: bold;
         margin-right: 0.75rem;
-        font-weight: 800;
     }
 
     div.stButton > button {
-        background: #3B82F6 !important;
-        color: #FFFFFF !important;
+        background: #1A5CFF !important;
+        color: white !important;
         border: none !important;
-        border-radius: 12px !important;
-        padding: 1rem 2.5rem !important;
-        font-weight: 700 !important;
+        border-radius: 10px !important;
+        padding: 0.75rem 2rem !important;
+        font-weight: 500 !important;
         font-size: 1rem !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         width: 100% !important;
-        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3) !important;
+        transition: 0.2s !important;
     }
-    
+
     div.stButton > button:hover {
-        background: #2563EB !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4) !important;
+        background: #0045E6 !important;
     }
-    
+
     .stTextInput input, .stSelectbox div[data-baseweb="select"], .stTextArea textarea {
-        background: rgba(0, 0, 0, 0.2) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 12px !important;
+        background: #1A1A1A !important;
+        border: 1px solid #2A2A2A !important;
+        border-radius: 8px !important;
         color: #FFFFFF !important;
-        padding: 0.75rem 1rem !important;
+        padding: 0.6rem 1rem !important;
     }
-    
+
     label {
-        color: #FFFFFF !important;
-        font-weight: 600 !important;
-        font-size: 0.9rem !important;
-        margin-bottom: 0.5rem !important;
+        color: #CCCCCC !important;
+        font-weight: 400 !important;
+        font-size: 0.85rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .back-button {
+        color: #888888;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+    }
+
+    .back-button:hover {
+        color: #1A5CFF;
+    }
+
+    hr {
+        border-color: #222222;
+        margin: 1.5rem 0;
+    }
+
+    .success-message {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .success-message h3 {
+        color: #FFFFFF;
+        font-size: 2rem;
+        font-weight: 500;
+        margin: 1rem 0;
+    }
+
+    .footer-note {
+        color: #555555;
+        font-size: 0.8rem;
+        text-align: center;
+        margin-top: 2rem;
     }
 
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    .stDeployButton {display:none;}
 </style>
 """, unsafe_allow_html=True)
 
 # --- DATABASE ---
 def init_db():
-    conn = sqlite3.connect('vergecom_candidates.db')
+    conn = sqlite3.connect('applications.db')
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS applicants 
-                 (id INTEGER PRIMARY KEY, name TEXT, phone TEXT, email TEXT, city TEXT, state TEXT, zip TEXT,
-                  skills TEXT, years_exp TEXT, roof_work TEXT, vehicle TEXT, ladder TEXT, license TEXT, tools TEXT,
-                  insurance TEXT, service_area TEXT, start_date TEXT, status TEXT, timestamp TEXT)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS applicants
+                 (id INTEGER PRIMARY KEY, name TEXT, phone TEXT, email TEXT,
+                  experience TEXT, vehicle TEXT, ladder TEXT, insurance TEXT,
+                  status TEXT, timestamp TEXT)''')
     conn.commit()
     conn.close()
 
-def save_applicant(data, status):
-    conn = sqlite3.connect('vergecom_candidates.db')
+def save_applicant(data):
+    conn = sqlite3.connect('applications.db')
     c = conn.cursor()
-    c.execute("INSERT INTO applicants (name, phone, email, city, state, zip, skills, years_exp, roof_work, vehicle, ladder, license, tools, insurance, service_area, start_date, status, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (data['name'], data['phone'], data['email'], data['city'], data['state'], data['zip'], str(data['skills']), data['years_exp'], data['roof_work'], data['vehicle'], data['ladder'], data['license'], "[]", data['insurance'], data['service_area'], "Immediate", status, datetime.now()))
+    c.execute("""INSERT INTO applicants 
+                 (name, phone, email, experience, vehicle, ladder, insurance, status, timestamp) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (data['name'], data['phone'], data['email'], data['experience'], 
+         data['vehicle'], data['ladder'], data['insurance'], 'NEW', datetime.now()))
     conn.commit()
     conn.close()
 
 init_db()
 
-if 'page' not in st.session_state: st.session_state.page = 'landing'
+# --- SESSION STATE ---
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
 
-# --- PAGES ---
-if st.session_state.page == 'landing':
-    st.markdown('<div class="premium-card">', unsafe_allow_html=True)
-    st.markdown('<span class="company-tag">Vergecom LLC</span><h1>Starlink<br>Technician</h1><p class="subtitle">Join our elite field force as an Independent Contractor (1099).</p>', unsafe_allow_html=True)
-    
-    # Long paragraph about the role
-    st.markdown("""
-    <div class="long-description">
-        As a Vergecom Starlink Field Technician, you'll be at the forefront of the satellite internet revolution, bringing high-speed connectivity to homes and businesses across the greater metropolitan area. This is not just another installation job—it's an opportunity to master the cutting-edge technology that's reshaping global communications. You'll be responsible for the complete end-to-end installation of Starlink systems, from initial site survey and signal analysis to precision roof mounting, cable routing, and final system optimization. Our technicians are the face of Vergecom, trusted to deliver flawless installations that meet the exacting standards of both our company and SpaceX. You'll work independently, managing your own schedule and routes, while being backed by our dedicated support team. The role demands a unique blend of technical aptitude, problem-solving skills, and customer service excellence. You'll need to think on your feet, adapt to diverse residential and commercial environments, and troubleshoot everything from obstructions to connectivity issues in real-time. For those who excel, this position offers significant earning potential through our performance-based compensation structure, with top technicians consistently exceeding $2,000 per week. We're looking for self-starters who take pride in their workmanship, understand the importance of punctuality and professional presentation, and are ready to commit to the rigorous demands of a high-volume installation schedule. If you have the technical background, the right equipment, and the drive to succeed, Vergecom provides the platform, the training, and the consistent workflow to help you build a thriving career in the new space economy.
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown('<div class="section-header">Responsibilities</div><div class="requirement-item">3-6 precision installs daily</div><div class="requirement-item">Advanced roof mounting</div><div class="requirement-item">Cable termination and weatherproofing</div><div class="requirement-item">Signal strength optimization</div>', unsafe_allow_html=True)
-    with col2:
-        st.markdown('<div class="section-header">Requirements</div><div class="requirement-item">Truck/Van/SUV with ladder rack</div><div class="requirement-item">28ft Fiberglass ladder</div><div class="requirement-item">Liability Insurance (min $1M)</div><div class="requirement-item">Smartphone with data plan</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div style="margin-top: 3rem;">', unsafe_allow_html=True)
-    if st.button("Begin Application"):
-        st.session_state.page = 'application'
-        st.rerun()
-    st.markdown('</div></div>', unsafe_allow_html=True)
+# --- HOME PAGE ---
+if st.session_state.page == 'home':
+    with st.container():
+        st.markdown('<div class="main-card">', unsafe_allow_html=True)
+        
+        st.markdown('<span class="badge">NOW HIRING</span>', unsafe_allow_html=True)
+        st.markdown("<h1>Starlink<br>Technician</h1>", unsafe_allow_html=True)
+        
+        # Stats
+        st.markdown("""
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">EARNING POTENTIAL</div>
+                <div class="stat-value">$1,400</div>
+                <div class="stat-note">avg weekly</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">START DATE</div>
+                <div class="stat-value">Immediate</div>
+                <div class="stat-note">flexible schedule</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">ROLE TYPE</div>
+                <div class="stat-value">1099</div>
+                <div class="stat-note">independent</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Description
+        st.markdown("""
+        <div class="job-description">
+            We're looking for experienced technicians to install Starlink satellite systems 
+            in the greater metro area. You'll handle 3-5 residential installs daily, working 
+            independently with our dispatch support. This is a performance-based role with 
+            unlimited earning potential.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Two columns for requirements
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown('<div class="list-header">WHAT YOU'LL DO</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-item">Residential Starlink installations</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-item">Roof mounting & cable routing</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-item">Signal optimization & testing</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-item">Customer education</div>', unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown('<div class="list-header">WHAT YOU NEED</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-item">Reliable truck/van/SUV</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-item">24ft+ fiberglass ladder</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-item">Basic tools & drill</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-item">Smartphone</div>', unsafe_allow_html=True)
+        
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
+        if st.button("APPLY NOW", use_container_width=True):
+            st.session_state.page = 'apply'
+            st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
-elif st.session_state.page == 'application':
-    st.markdown('<div class="premium-card">', unsafe_allow_html=True)
-    if st.button("← Back"):
-        st.session_state.page = 'landing'
-        st.rerun()
-    st.markdown('<h1>Apply Now</h1><p class="subtitle">Complete your professional profile below.</p>', unsafe_allow_html=True)
-    with st.form("app"):
-        st.markdown('<div class="section-header">1. Identity</div>', unsafe_allow_html=True)
-        name = st.text_input("Full Name")
-        c1, c2 = st.columns(2)
-        phone = c1.text_input("Phone")
-        email = c2.text_input("Email")
-        st.markdown('<div class="section-header">2. Expertise</div>', unsafe_allow_html=True)
-        skills = st.multiselect("Skills", ["Satellite Installation", "Starlink Certified", "TV Mounting", "Low Voltage Wiring", "Networking", "Roofing"])
-        years = st.selectbox("Experience", ["Select", "< 1 year", "1-2 years", "3-5 years", "5+ years", "10+ years"])
-        st.markdown('<div class="section-header">3. Logistics</div>', unsafe_allow_html=True)
-        v = st.radio("Do you have a reliable truck/van/SUV?", ["Yes", "No"], horizontal=True)
-        l = st.radio("Do you own a 28ft+ fiberglass ladder?", ["Yes", "No"], horizontal=True)
-        insurance = st.radio("Do you have general liability insurance?", ["Yes", "No", "Willing to obtain"], horizontal=True)
-        sub = st.form_submit_button("Submit Application")
-        if sub:
-            if not name or not phone: 
-                st.error("Name and phone are required fields")
-            else:
-                save_applicant({
-                    "name": name,
-                    "phone": phone,
-                    "email": email,
-                    "city": "",
-                    "state": "",
-                    "zip": "",
-                    "skills": skills,
-                    "years_exp": years,
-                    "roof_work": "",
-                    "vehicle": v,
-                    "ladder": l,
-                    "license": "",
-                    "insurance": insurance,
-                    "service_area": ""
-                }, "PENDING")
-                st.session_state.page = 'success'
-                st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+# --- APPLICATION PAGE ---
+elif st.session_state.page == 'apply':
+    with st.container():
+        st.markdown('<div class="main-card">', unsafe_allow_html=True)
+        
+        if st.button("← BACK", use_container_width=False):
+            st.session_state.page = 'home'
+            st.rerun()
+        
+        st.markdown("<h2>Application Form</h2>", unsafe_allow_html=True)
+        
+        with st.form("application_form"):
+            # Basic Info
+            st.markdown("**Basic Information**")
+            name = st.text_input("Full name *")
+            col1, col2 = st.columns(2)
+            with col1:
+                phone = st.text_input("Phone *")
+            with col2:
+                email = st.text_input("Email")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("**Experience**")
+            experience = st.selectbox(
+                "Years of installation experience",
+                ["Less than 1 year", "1-2 years", "3-5 years", "5+ years", "10+ years"]
+            )
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("**Equipment Checklist**")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                vehicle = st.checkbox("I have a reliable truck/van/SUV")
+                ladder = st.checkbox("I have a 24ft+ fiberglass ladder")
+            with col2:
+                tools = st.checkbox("I have basic installation tools")
+                insurance = st.checkbox("I have liability insurance")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # Submit
+            submitted = st.form_submit_button("SUBMIT APPLICATION", use_container_width=True)
+            
+            if submitted:
+                if not name or not phone:
+                    st.error("Name and phone are required")
+                elif not vehicle or not ladder:
+                    st.error("You must have a vehicle and ladder to apply")
+                else:
+                    save_applicant({
+                        'name': name,
+                        'phone': phone,
+                        'email': email,
+                        'experience': experience,
+                        'vehicle': 'Yes' if vehicle else 'No',
+                        'ladder': 'Yes' if ladder else 'No',
+                        'insurance': 'Yes' if insurance else 'No'
+                    })
+                    st.session_state.page = 'success'
+                    st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
+# --- SUCCESS PAGE ---
 elif st.session_state.page == 'success':
-    st.markdown('<div class="premium-card" style="text-align: center; padding: 5rem 2rem;"><h1>Application Received</h1><p class="subtitle">Thank you for your interest in joining the Vergecom team. Our hiring manager will review your qualifications and contact you within 24-48 hours to discuss next steps.</p>', unsafe_allow_html=True)
-    if st.button("Return to Home"):
-        st.session_state.page = 'landing'
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container():
+        st.markdown('<div class="main-card success-message">', unsafe_allow_html=True)
+        
+        st.markdown("✅")
+        st.markdown("<h3>Application<br>Received</h3>", unsafe_allow_html=True)
+        st.markdown("""
+        <p style="color: #AAAAAA; margin: 1.5rem 0;">
+            Thanks for applying. Our team will review your information<br>
+            and contact you within 2 business days.
+        </p>
+        """, unsafe_allow_html=True)
+        
+        if st.button("RETURN HOME", use_container_width=True):
+            st.session_state.page = 'home'
+            st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# --- FOOTER ---
+st.markdown("""
+<div class="footer-note">
+    Vergecom LLC • Independent Contractor Opportunities
+</div>
+""", unsafe_allow_html=True)
