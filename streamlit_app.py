@@ -37,12 +37,12 @@ st.markdown("""
     .company-header {
         text-align: center;
         margin-bottom: 40px;
-        border-bottom: 2px solid #F1F5F9;
+        border-bottom: 2px solid #000000;
         padding-bottom: 30px;
     }
     
     .company-name {
-        color: #0F1828;
+        color: #000000;
         font-size: 14px;
         font-weight: 600;
         letter-spacing: 1.5px;
@@ -51,7 +51,7 @@ st.markdown("""
     }
     
     .job-title {
-        color: #0F1828;
+        color: #000000;
         font-size: 42px;
         font-weight: 700;
         margin: 10px 0 5px 0;
@@ -59,65 +59,73 @@ st.markdown("""
     }
     
     .job-type {
-        color: #64748B;
+        color: #000000;
         font-size: 18px;
         font-weight: 400;
         margin-top: 5px;
+        opacity: 0.8;
     }
     
-    /* Section styles */
+    /* Section styles - ALL BLACK */
     .section-title {
-        color: #0F1828;
+        color: #000000;
         font-size: 20px;
         font-weight: 700;
         margin: 35px 0 20px 0;
         letter-spacing: -0.02em;
+        border-bottom: 1px solid #000000;
+        padding-bottom: 8px;
     }
     
     .section-title:first-of-type {
         margin-top: 10px;
     }
     
-    /* Text styles */
+    /* Text styles - ALL BLACK */
     .body-text {
-        color: #334155;
+        color: #000000;
         font-size: 16px;
         line-height: 1.7;
         margin-bottom: 20px;
         font-weight: 400;
     }
     
-    /* List styles */
+    .body-text strong {
+        color: #000000;
+        font-weight: 700;
+    }
+    
+    /* List styles - ALL BLACK */
     .corporate-list {
         margin: 15px 0 25px 0;
         padding-left: 25px;
-        color: #334155;
+        color: #000000;
         font-size: 16px;
         line-height: 1.8;
     }
     
     .corporate-list li {
         margin-bottom: 12px;
-        color: #334155;
+        color: #000000;
     }
     
     .corporate-list li strong {
-        color: #0F1828;
-        font-weight: 600;
+        color: #000000;
+        font-weight: 700;
     }
     
     /* Pay highlight */
     .pay-summary {
-        background-color: #F8FAFC;
+        background-color: #000000;
         border-radius: 16px;
         padding: 25px 30px;
         margin: 30px 0 20px 0;
-        border: 1px solid #E9EDF2;
+        border: 1px solid #000000;
         text-align: center;
     }
     
     .pay-range {
-        color: #0F1828;
+        color: #FFFFFF;
         font-size: 36px;
         font-weight: 700;
         letter-spacing: -0.02em;
@@ -125,31 +133,34 @@ st.markdown("""
     }
     
     .pay-note {
-        color: #475569;
+        color: #FFFFFF;
         font-size: 16px;
         font-weight: 400;
         margin-top: 5px;
+        opacity: 0.9;
     }
     
     /* Button styles */
     .stButton button {
-        background-color: #0F1828 !important;
-        color: white !important;
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
         font-size: 18px !important;
         font-weight: 600 !important;
         padding: 20px 40px !important;
         border-radius: 12px !important;
-        border: none !important;
+        border: 2px solid #000000 !important;
         width: 100%;
         transition: all 0.2s ease;
         letter-spacing: 0.3px;
-        box-shadow: 0 4px 6px rgba(15, 24, 40, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         margin: 20px 0 0 0 !important;
     }
     
     .stButton button:hover {
-        background-color: #1E2B3C !important;
-        box-shadow: 0 8px 15px rgba(15, 24, 40, 0.2);
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border: 2px solid #000000 !important;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         transform: translateY(-2px);
     }
     
@@ -168,7 +179,7 @@ st.markdown("""
     }
     
     .form-title {
-        color: #0F1828;
+        color: #000000;
         font-size: 28px;
         font-weight: 700;
         text-align: center;
@@ -176,25 +187,32 @@ st.markdown("""
     }
     
     .form-subtitle {
-        color: #64748B;
+        color: #000000;
         font-size: 16px;
         text-align: center;
         margin-bottom: 40px;
+        opacity: 0.8;
     }
     
     /* Input fields */
     .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
         background-color: #FFFFFF;
-        border: 1.5px solid #E2E8F0;
+        border: 1.5px solid #000000;
         border-radius: 10px;
         padding: 12px;
-        color: #0F1828;
+        color: #000000;
         font-size: 15px;
     }
     
     .stTextInput input:focus, .stTextArea textarea:focus {
-        border-color: #0F1828 !important;
-        box-shadow: none !important;
+        border-color: #000000 !important;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    /* Labels */
+    .stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label {
+        color: #000000 !important;
+        font-weight: 500 !important;
     }
     
     /* Radio and checkbox */
@@ -202,35 +220,70 @@ st.markdown("""
         background-color: #F8FAFC;
         padding: 12px;
         border-radius: 10px;
+        border: 1px solid #000000;
+    }
+    
+    .stRadio div[role="radiogroup"] label {
+        color: #000000 !important;
     }
     
     hr {
         margin: 30px 0;
-        border-color: #E9EDF2;
+        border-color: #000000;
+        opacity: 0.2;
     }
     
     /* Success message */
     .success-container {
-        background-color: #FFFFFF;
+        background-color: #000000;
         border-radius: 20px;
         padding: 60px;
         text-align: center;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #EAECF0;
+        border: 1px solid #000000;
         margin: 20px 0;
     }
     
     .success-title {
-        color: #0F1828;
+        color: #FFFFFF;
         font-size: 36px;
         font-weight: 700;
         margin-bottom: 20px;
     }
     
     .success-text {
-        color: #475569;
+        color: #FFFFFF;
         font-size: 18px;
         line-height: 1.6;
+        opacity: 0.9;
+    }
+    
+    .success-text strong {
+        color: #FFFFFF;
+        font-weight: 700;
+    }
+    
+    /* Subheaders */
+    .stSubheader {
+        color: #000000 !important;
+        font-weight: 700 !important;
+        border-bottom: 1px solid #000000;
+        padding-bottom: 8px;
+        margin-top: 30px !important;
+    }
+    
+    /* Back button */
+    .stButton button[key="Back"] {
+        background-color: transparent !important;
+        color: #000000 !important;
+        border: 1px solid #000000 !important;
+        padding: 8px 16px !important;
+        font-size: 14px !important;
+    }
+    
+    .stButton button[key="Back"]:hover {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -260,7 +313,7 @@ def save_applicant(data, status):
 init_db()
 
 # ==========================================
-# PAGE 1: LANDING PAGE (CORPORATE STYLE)
+# PAGE 1: LANDING PAGE (ALL BLACK TEXT)
 # ==========================================
 if st.session_state.page == 'landing':
     
@@ -277,7 +330,7 @@ if st.session_state.page == 'landing':
         </div>
     """, unsafe_allow_html=True)
     
-    # Pay summary (removed image, just clean text)
+    # Pay summary (black background with white text)
     st.markdown("""
         <div class="pay-summary">
             <div class="pay-range">$1,200 – $1,800 per week</div>
@@ -290,7 +343,7 @@ if st.session_state.page == 'landing':
     st.markdown("""
         <p class="body-text">
             Vergecom is seeking professional, self-motivated Field Technicians to join our network of installation experts. 
-            In this <strong>1099 Independent Contractor</strong> role, you'll install and service Starlink satellite systems for 
+            In this <strong>1099 Independent Contractor</strong> role, you'll install and service satellite systems for 
             residential and commercial customers. This position offers flexibility, autonomy, and uncapped earning potential 
             through our performance-based compensation model.
         </p>
@@ -301,7 +354,7 @@ if st.session_state.page == 'landing':
     st.markdown("""
         <ul class="corporate-list">
             <li><strong>Site Assessment:</strong> Conduct thorough site surveys to determine optimal equipment placement</li>
-            <li><strong>Installation:</strong> Mount satellite hardware on roofs, siding, and poles using industry-standard techniques</li>
+            <li><strong>Installation:</strong> Mount hardware on roofs, siding, and poles using industry-standard techniques</li>
             <li><strong>Cabling:</strong> Route and terminate cables professionally, ensuring clean and secure installations</li>
             <li><strong>Configuration:</strong> Set up network equipment and verify system connectivity and performance</li>
             <li><strong>Troubleshooting:</strong> Diagnose and resolve signal issues and connectivity problems on-site</li>
@@ -350,7 +403,7 @@ elif st.session_state.page == 'application':
     # Back button
     col1, col2 = st.columns([1, 5])
     with col1:
-        if st.button("← Back", use_container_width=True):
+        if st.button("← Back", key="Back", use_container_width=True):
             st.session_state.page = 'landing'
             st.rerun()
     
@@ -408,7 +461,7 @@ elif st.session_state.page == 'application':
     # Submit
     if st.button("SUBMIT APPLICATION", use_container_width=True):
         if not name or not phone or experience == "Select" or vehicle == "No" or ladder == "No":
-            st.error("Please complete all required fields and ensure you meet the minimum requirements.")
+            st.error("⚠️ Please complete all required fields and ensure you meet the minimum requirements.")
         else:
             data = {"name": name, "phone": phone, "email": email, "skills": [], "experience": experience}
             save_applicant(data, "QUALIFIED")
