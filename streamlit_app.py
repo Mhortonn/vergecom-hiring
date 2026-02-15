@@ -5,385 +5,689 @@ from datetime import datetime
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Vergecom | Starlink Technician", page_icon="🛰️", layout="centered")
 
-# --- CLEAN, MODERN CSS ---
+# --- BOLD EDITORIAL / INDUSTRIAL AESTHETIC ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap');
+
+    :root {
+        --bg-primary: #050505;
+        --bg-card: #0C0C0C;
+        --bg-elevated: #131313;
+        --bg-input: #0F0F0F;
+        --border-subtle: #1A1A1A;
+        --border-mid: #252525;
+        --accent: #3B82F6;
+        --accent-bright: #60A5FA;
+        --accent-glow: rgba(59, 130, 246, 0.15);
+        --accent-warm: #F59E0B;
+        --text-primary: #F5F5F5;
+        --text-secondary: #9CA3AF;
+        --text-muted: #6B7280;
+        --text-faint: #404040;
+        --success: #22C55E;
+        --error: #EF4444;
+        --radius-sm: 6px;
+        --radius-md: 12px;
+        --radius-lg: 20px;
+        --radius-xl: 28px;
+    }
+
     .stApp {
-        background: #0A0A0A;
-        font-family: 'Inter', sans-serif;
+        background: var(--bg-primary);
+        font-family: 'Sora', sans-serif;
     }
 
     .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 3rem !important;
-        max-width: 700px !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 4rem !important;
+        max-width: 640px !important;
     }
 
-    .main-card {
-        background: #111111;
-        border: 1px solid #222222;
-        border-radius: 20px;
-        padding: 2rem;
+    /* ── HERO SECTION ── */
+    .hero-wrapper {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-card);
+        margin-bottom: 1.5rem;
     }
 
-    h1 {
-        color: #FFFFFF !important;
-        font-size: 2.8rem !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.02em !important;
-        margin-bottom: 0.5rem !important;
+    .hero-grid-bg {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 0%, transparent 100%);
+        -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 0%, transparent 100%);
     }
 
-    h2 {
-        color: #FFFFFF !important;
-        font-size: 1.4rem !important;
-        font-weight: 500 !important;
-        margin: 1.5rem 0 1rem 0 !important;
+    .hero-glow {
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 500px;
+        height: 300px;
+        background: radial-gradient(ellipse, rgba(59,130,246,0.08) 0%, transparent 70%);
+        pointer-events: none;
     }
 
-    .badge {
-        background: #1A5CFF;
-        color: white;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.75rem;
-        border-radius: 100px;
-        display: inline-block;
-        margin-bottom: 1rem;
-        letter-spacing: 0.3px;
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        padding: 2.5rem 2rem 2rem;
     }
 
-    .stats-grid {
+    .hero-topline {
         display: flex;
-        gap: 1rem;
-        margin: 2rem 0;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
     }
 
-    .stat-box {
-        background: #1A1A1A;
-        border: 1px solid #2A2A2A;
-        border-radius: 12px;
-        padding: 1rem;
-        flex: 1;
-    }
-
-    .stat-label {
-        color: #888888;
-        font-size: 0.75rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        margin-bottom: 0.25rem;
-    }
-
-    .stat-value {
-        color: #FFFFFF;
-        font-size: 1.5rem;
+    .pill-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
         font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.3rem 0.85rem;
+        border-radius: 100px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .pill-hiring {
+        background: rgba(34,197,94,0.1);
+        color: #4ADE80;
+        border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .pill-hiring::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: #4ADE80;
+        border-radius: 50%;
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+
+    .pill-type {
+        background: rgba(59,130,246,0.08);
+        color: var(--accent-bright);
+        border: 1px solid rgba(59,130,246,0.15);
+    }
+
+    .hero-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 3.4rem;
+        font-weight: 800;
+        line-height: 1.0;
+        letter-spacing: -0.035em;
+        color: var(--text-primary);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .hero-title span {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-bright) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-subtitle {
+        font-family: 'Sora', sans-serif;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-top: 0.5rem;
+    }
+
+    /* ── METRIC STRIP ── */
+    .metric-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .metric-cell {
+        padding: 1.25rem 1.5rem;
+        border-right: 1px solid var(--border-subtle);
+        position: relative;
+    }
+
+    .metric-cell:last-child {
+        border-right: none;
+    }
+
+    .metric-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.3rem;
+    }
+
+    .metric-value {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-primary);
         line-height: 1.2;
     }
 
-    .stat-note {
-        color: #1A5CFF;
+    .metric-sub {
         font-size: 0.7rem;
+        color: var(--accent-bright);
         font-weight: 500;
+        margin-top: 0.1rem;
     }
 
-    .job-description {
-        color: #CCCCCC;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin: 1.5rem 0;
-        padding: 1rem 0;
-        border-top: 1px solid #222222;
-        border-bottom: 1px solid #222222;
+    /* ── SECTION CARD ── */
+    .section-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem 1.75rem;
+        margin-bottom: 1rem;
     }
 
-    .list-header {
-        color: #FFFFFF;
-        font-size: 0.9rem;
+    .section-eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
         font-weight: 600;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
         margin-bottom: 0.75rem;
     }
 
-    .list-item {
-        color: #AAAAAA;
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+    .desc-text {
+        font-size: 0.92rem;
+        line-height: 1.7;
+        color: var(--text-secondary);
+    }
+
+    /* ── ROLE / REQUIREMENTS GRID ── */
+    .dual-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .grid-panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+    }
+
+    .grid-panel-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        font-weight: 600;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 1rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .grid-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        margin-bottom: 0.7rem;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+
+    .grid-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .grid-icon {
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        background: rgba(59,130,246,0.08);
+        border: 1px solid rgba(59,130,246,0.12);
+        border-radius: 4px;
         display: flex;
         align-items: center;
+        justify-content: center;
+        font-size: 0.55rem;
+        color: var(--accent-bright);
+        margin-top: 1px;
     }
 
-    .list-item:before {
-        content: "•";
-        color: #1A5CFF;
-        font-weight: bold;
-        margin-right: 0.75rem;
-    }
-
+    /* ── CTA BUTTON ── */
     div.stButton > button {
-        background: #1A5CFF !important;
+        background: var(--accent) !important;
         color: white !important;
         border: none !important;
-        border-radius: 10px !important;
-        padding: 0.75rem 2rem !important;
-        font-weight: 500 !important;
-        font-size: 1rem !important;
+        border-radius: var(--radius-md) !important;
+        padding: 0.85rem 2rem !important;
+        font-family: 'Sora', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 0.02em !important;
         width: 100% !important;
-        transition: 0.2s !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 0 0 0 rgba(59,130,246,0) !important;
     }
 
     div.stButton > button:hover {
-        background: #0045E6 !important;
+        background: #2563EB !important;
+        box-shadow: 0 4px 24px rgba(59,130,246,0.3) !important;
+        transform: translateY(-1px) !important;
     }
 
-    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stTextArea textarea {
-        background: #1A1A1A !important;
-        border: 1px solid #2A2A2A !important;
-        border-radius: 8px !important;
-        color: #FFFFFF !important;
-        padding: 0.6rem 1rem !important;
+    div.stButton > button:active {
+        transform: translateY(0) !important;
+    }
+
+    /* ── FORM STYLES ── */
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-subtitle {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    .form-divider {
+        height: 1px;
+        background: var(--border-subtle);
+        margin: 1.25rem 0;
+    }
+
+    .form-section-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+    }
+
+    .stTextInput input, .stTextArea textarea {
+        background: var(--bg-input) !important;
+        border: 1px solid var(--border-mid) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--text-primary) !important;
+        font-family: 'Sora', sans-serif !important;
+        font-size: 0.88rem !important;
+        padding: 0.65rem 0.9rem !important;
+        transition: border-color 0.2s !important;
+    }
+
+    .stTextInput input:focus, .stTextArea textarea:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 2px var(--accent-glow) !important;
+    }
+
+    .stSelectbox div[data-baseweb="select"] {
+        background: var(--bg-input) !important;
+        border-radius: var(--radius-sm) !important;
+    }
+
+    .stSelectbox div[data-baseweb="select"] > div {
+        background: var(--bg-input) !important;
+        border: 1px solid var(--border-mid) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--text-primary) !important;
+        font-family: 'Sora', sans-serif !important;
+        font-size: 0.88rem !important;
     }
 
     label {
-        color: #CCCCCC !important;
+        color: var(--text-secondary) !important;
+        font-family: 'Sora', sans-serif !important;
         font-weight: 400 !important;
-        font-size: 0.85rem !important;
-        margin-bottom: 0.25rem !important;
+        font-size: 0.8rem !important;
     }
 
-    .back-button {
-        color: #888888;
-        font-size: 0.9rem;
+    .stCheckbox label span {
+        color: var(--text-secondary) !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* ── BACK LINK ── */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
         margin-bottom: 1rem;
         cursor: pointer;
+        transition: color 0.2s;
     }
 
-    .back-button:hover {
-        color: #1A5CFF;
+    .back-link:hover {
+        color: var(--accent-bright);
     }
 
-    hr {
-        border-color: #222222;
-        margin: 1.5rem 0;
-    }
-
-    .success-message {
+    /* ── SUCCESS STATE ── */
+    .success-wrapper {
         text-align: center;
-        padding: 2rem;
+        padding: 3rem 2rem;
     }
 
-    .success-message h3 {
-        color: #FFFFFF;
+    .success-icon {
+        width: 72px;
+        height: 72px;
+        background: rgba(34,197,94,0.08);
+        border: 1px solid rgba(34,197,94,0.15);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .success-title {
+        font-family: 'Outfit', sans-serif;
         font-size: 2rem;
-        font-weight: 500;
-        margin: 1rem 0;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
     }
 
-    .footer-note {
-        color: #555555;
-        font-size: 0.8rem;
+    .success-desc {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        max-width: 320px;
+        margin: 0 auto 2rem;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
         text-align: center;
-        margin-top: 2rem;
+        padding: 1.5rem 0 0;
     }
 
+    .footer-brand {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-faint);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
+
+    .footer-sub {
+        font-size: 0.65rem;
+        color: var(--text-faint);
+        margin-top: 0.2rem;
+        opacity: 0.6;
+    }
+
+    /* ── ERROR ── */
+    .stAlert {
+        border-radius: var(--radius-md) !important;
+    }
+
+    /* ── HIDE STREAMLIT DEFAULTS ── */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    .stDeployButton {display: none;}
 </style>
 """, unsafe_allow_html=True)
 
+
 # --- DATABASE ---
 def init_db():
-    conn = sqlite3.connect('applications.db')
+    conn = sqlite3.connect("applications.db")
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS applicants
+    c.execute("""CREATE TABLE IF NOT EXISTS applicants
                  (id INTEGER PRIMARY KEY, name TEXT, phone TEXT, email TEXT,
-                  experience TEXT, vehicle TEXT, ladder TEXT, tools TEXT, insurance TEXT,
-                  status TEXT, timestamp TEXT)''')
+                  experience TEXT, vehicle TEXT, ladder TEXT, insurance TEXT,
+                  status TEXT, timestamp TEXT)""")
     conn.commit()
     conn.close()
 
+
 def save_applicant(data):
-    conn = sqlite3.connect('applications.db')
+    conn = sqlite3.connect("applications.db")
     c = conn.cursor()
-    c.execute("""INSERT INTO applicants 
-                 (name, phone, email, experience, vehicle, ladder, tools, insurance, status, timestamp) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (data['name'], data['phone'], data['email'], data['experience'], 
-         data['vehicle'], data['ladder'], data['tools'], data['insurance'], 'NEW', datetime.now()))
+    c.execute(
+        """INSERT INTO applicants
+           (name, phone, email, experience, vehicle, ladder, insurance, status, timestamp)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (
+            data["name"], data["phone"], data["email"], data["experience"],
+            data["vehicle"], data["ladder"], data["insurance"],
+            "NEW", datetime.now().isoformat(),
+        ),
+    )
     conn.commit()
     conn.close()
+
 
 init_db()
 
 # --- SESSION STATE ---
-if 'page' not in st.session_state:
-    st.session_state.page = 'home'
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-# --- HOME PAGE ---
-if st.session_state.page == 'home':
-    with st.container():
-        st.markdown('<div class="main-card">', unsafe_allow_html=True)
-        
-        st.markdown('<span class="badge">NOW HIRING</span>', unsafe_allow_html=True)
-        st.markdown("<h1>Starlink<br>Technician</h1>", unsafe_allow_html=True)
-        
-        # Stats
-        st.markdown("""
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-label">EARNING POTENTIAL</div>
-                <div class="stat-value">$1,400</div>
-                <div class="stat-note">avg weekly</div>
+
+# ╔══════════════════════════════════════════╗
+# ║              HOME  PAGE                  ║
+# ╚══════════════════════════════════════════╝
+if st.session_state.page == "home":
+
+    # ── Hero ──
+    st.markdown("""
+    <div class="hero-wrapper">
+        <div class="hero-grid-bg"></div>
+        <div class="hero-glow"></div>
+        <div class="hero-content">
+            <div class="hero-topline">
+                <span class="pill-badge pill-hiring">HIRING NOW</span>
+                <span class="pill-badge pill-type">1099 · INDEPENDENT</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">START DATE</div>
-                <div class="stat-value">Immediate</div>
-                <div class="stat-note">flexible schedule</div>
+            <div class="hero-title">Starlink<br><span>Technician</span></div>
+            <div class="hero-subtitle">Greater metro area · Flexible schedule · Performance-based pay</div>
+        </div>
+        <div class="metric-strip">
+            <div class="metric-cell">
+                <div class="metric-label">Earning Potential</div>
+                <div class="metric-value">$1,400</div>
+                <div class="metric-sub">avg / week</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">ROLE TYPE</div>
-                <div class="stat-value">1099</div>
-                <div class="stat-note">independent</div>
+            <div class="metric-cell">
+                <div class="metric-label">Availability</div>
+                <div class="metric-value">Immediate</div>
+                <div class="metric-sub">start this week</div>
+            </div>
+            <div class="metric-cell">
+                <div class="metric-label">Daily Installs</div>
+                <div class="metric-value">3 – 5</div>
+                <div class="metric-sub">residential</div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
-        
-        # Description
-        st.markdown("""
-        <div class="job-description">
-            We're looking for experienced technicians to install Starlink satellite systems 
-            in the greater metro area. You'll handle 3-5 residential installs daily, working 
-            independently with our dispatch support. This is a performance-based role with 
-            unlimited earning potential.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Description ──
+    st.markdown("""
+    <div class="section-card">
+        <div class="section-eyebrow">// About the Role</div>
+        <div class="desc-text">
+            We're hiring experienced technicians to install Starlink satellite internet
+            systems across the greater metro area. You'll work independently — handling
+            residential installs from start to finish with full dispatch support. This is a
+            performance-based, uncapped-earning opportunity for self-starters who take pride
+            in quality work.
         </div>
-        """, unsafe_allow_html=True)
-        
-        # Two columns for requirements
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Dual grid ──
+    st.markdown("""
+    <div class="dual-grid">
+        <div class="grid-panel">
+            <div class="grid-panel-title">// What You'll Do</div>
+            <div class="grid-item"><div class="grid-icon">▸</div>Residential Starlink installations</div>
+            <div class="grid-item"><div class="grid-icon">▸</div>Roof mounting &amp; cable routing</div>
+            <div class="grid-item"><div class="grid-icon">▸</div>Signal optimization &amp; testing</div>
+            <div class="grid-item"><div class="grid-icon">▸</div>Customer walkthroughs</div>
+        </div>
+        <div class="grid-panel">
+            <div class="grid-panel-title">// What You Need</div>
+            <div class="grid-item"><div class="grid-icon">✓</div>Reliable truck, van, or SUV</div>
+            <div class="grid-item"><div class="grid-icon">✓</div>24 ft+ fiberglass ladder</div>
+            <div class="grid-item"><div class="grid-icon">✓</div>Basic tools &amp; power drill</div>
+            <div class="grid-item"><div class="grid-icon">✓</div>Smartphone w/ data plan</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── CTA ──
+    if st.button("APPLY NOW →", use_container_width=True):
+        st.session_state.page = "apply"
+        st.rerun()
+
+
+# ╔══════════════════════════════════════════╗
+# ║          APPLICATION  PAGE               ║
+# ╚══════════════════════════════════════════╝
+elif st.session_state.page == "apply":
+
+    if st.button("← Back to listing"):
+        st.session_state.page = "home"
+        st.rerun()
+
+    st.markdown("""
+    <div class="form-card" style="margin-top:0.25rem;">
+        <div class="form-title">Apply</div>
+        <div class="form-subtitle">Fill out the basics — we'll be in touch within 48 hours.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.form("application_form"):
+
+        # — Contact —
+        st.markdown('<div class="form-section-label">Contact Information</div>', unsafe_allow_html=True)
+        name = st.text_input("Full name *")
         col1, col2 = st.columns(2)
-        
         with col1:
-            st.markdown('<div class="list-header">WHAT YOU\'LL DO</div>', unsafe_allow_html=True)
-            st.markdown('<div class="list-item">Residential Starlink installations</div>', unsafe_allow_html=True)
-            st.markdown('<div class="list-item">Roof mounting & cable routing</div>', unsafe_allow_html=True)
-            st.markdown('<div class="list-item">Signal optimization & testing</div>', unsafe_allow_html=True)
-            st.markdown('<div class="list-item">Customer education</div>', unsafe_allow_html=True)
-        
+            phone = st.text_input("Phone number *")
         with col2:
-            st.markdown('<div class="list-header">WHAT YOU NEED</div>', unsafe_allow_html=True)
-            st.markdown('<div class="list-item">Reliable truck/van/SUV</div>', unsafe_allow_html=True)
-            st.markdown('<div class="list-item">24ft+ fiberglass ladder</div>', unsafe_allow_html=True)
-            st.markdown('<div class="list-item">Basic tools & drill</div>', unsafe_allow_html=True)
-            st.markdown('<div class="list-item">Smartphone</div>', unsafe_allow_html=True)
-        
-        st.markdown("<hr>", unsafe_allow_html=True)
-        
-        if st.button("APPLY NOW", use_container_width=True):
-            st.session_state.page = 'apply'
-            st.rerun()
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+            email = st.text_input("Email address")
 
-# --- APPLICATION PAGE ---
-elif st.session_state.page == 'apply':
-    with st.container():
-        st.markdown('<div class="main-card">', unsafe_allow_html=True)
-        
-        col_back, col_title = st.columns([1, 5])
-        with col_back:
-            if st.button("←", help="Go back"):
-                st.session_state.page = 'home'
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+
+        # — Experience —
+        st.markdown('<div class="form-section-label">Experience</div>', unsafe_allow_html=True)
+        experience = st.selectbox(
+            "Installation experience",
+            ["Less than 1 year", "1–2 years", "3–5 years", "5+ years", "10+ years"],
+        )
+
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+
+        # — Equipment —
+        st.markdown('<div class="form-section-label">Equipment Check</div>', unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            vehicle = st.checkbox("Reliable truck / van / SUV")
+            ladder = st.checkbox("24 ft+ fiberglass ladder")
+        with col2:
+            tools = st.checkbox("Basic installation tools")
+            insurance = st.checkbox("Liability insurance")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        submitted = st.form_submit_button("SUBMIT APPLICATION →", use_container_width=True)
+
+        if submitted:
+            if not name.strip() or not phone.strip():
+                st.error("Name and phone number are required.")
+            elif not vehicle or not ladder:
+                st.error("A vehicle and ladder are required for this role.")
+            else:
+                save_applicant({
+                    "name": name.strip(),
+                    "phone": phone.strip(),
+                    "email": email.strip(),
+                    "experience": experience,
+                    "vehicle": "Yes" if vehicle else "No",
+                    "ladder": "Yes" if ladder else "No",
+                    "insurance": "Yes" if insurance else "No",
+                })
+                st.session_state.page = "success"
                 st.rerun()
-        with col_title:
-            st.markdown("<h2 style='margin-top: 0;'>Application</h2>", unsafe_allow_html=True)
-        
-        with st.form("application_form"):
-            st.markdown("#### Tell us about yourself")
-            
-            name = st.text_input("Full name *", placeholder="John Smith")
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                phone = st.text_input("Phone *", placeholder="(555) 555-5555")
-            with col2:
-                email = st.text_input("Email", placeholder="john@email.com")
-            
-            st.markdown("---")
-            st.markdown("#### Work experience")
-            
-            experience = st.selectbox(
-                "How long have you been doing installations?",
-                ["Just starting out", "Less than 1 year", "1-2 years", "3-5 years", "5+ years", "10+ years"]
-            )
-            
-            st.markdown("---")
-            st.markdown("#### Gear check - what do you have?")
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                vehicle = st.checkbox("Reliable truck/van/SUV")
-                ladder = st.checkbox("24ft+ fiberglass ladder")
-            with col2:
-                tools = st.checkbox("Basic tools and drill")
-                insurance = st.checkbox("Liability insurance")
-            
-            st.markdown("---")
-            
-            # Submit
-            submitted = st.form_submit_button("SUBMIT APPLICATION", use_container_width=True)
-            
-            if submitted:
-                missing = []
-                if not name:
-                    missing.append("name")
-                if not phone:
-                    missing.append("phone")
-                
-                if missing:
-                    st.error(f"Please fill in: {', '.join(missing)}")
-                elif not vehicle or not ladder:
-                    st.warning("To do this job you'll need a vehicle and a ladder. Let's talk if you're planning to get them soon - reach out to us directly.")
-                else:
-                    save_applicant({
-                        'name': name,
-                        'phone': phone,
-                        'email': email,
-                        'experience': experience,
-                        'vehicle': 'Yes' if vehicle else 'No',
-                        'ladder': 'Yes' if ladder else 'No',
-                        'tools': 'Yes' if tools else 'No',
-                        'insurance': 'Yes' if insurance else 'No'
-                    })
-                    st.session_state.page = 'success'
-                    st.rerun()
-        
-        st.markdown('</div>', unsafe_allow_html=True)
 
-# --- SUCCESS PAGE ---
-elif st.session_state.page == 'success':
-    with st.container():
-        st.markdown('<div class="main-card success-message">', unsafe_allow_html=True)
-        
-        st.markdown("✅")
-        st.markdown("<h3>Got it!</h3>", unsafe_allow_html=True)
-        st.markdown("""
-        <p style="color: #AAAAAA; margin: 1.5rem 0;">
-            We'll look over your info and give you a call in a day or two.<br>
-            Talk soon.
-        </p>
-        """, unsafe_allow_html=True)
-        
-        if st.button("BACK TO HOME", use_container_width=True):
-            st.session_state.page = 'home'
-            st.rerun()
-        
-        st.markdown('</div>', unsafe_allow_html=True)
 
-# --- FOOTER ---
+# ╔══════════════════════════════════════════╗
+# ║            SUCCESS  PAGE                 ║
+# ╚══════════════════════════════════════════╝
+elif st.session_state.page == "success":
+
+    st.markdown("""
+    <div class="form-card">
+        <div class="success-wrapper">
+            <div class="success-icon">✓</div>
+            <div class="success-title">Application Received</div>
+            <div class="success-desc">
+                Thanks for your interest. Our team will review your information
+                and reach out within two business days.
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("BACK TO LISTING", use_container_width=True):
+        st.session_state.page = "home"
+        st.rerun()
+
+
+# ── Footer ──
 st.markdown("""
-<div class="footer-note">
-    Vergecom LLC • 1099 opportunities
+<div class="site-footer">
+    <div class="footer-brand">VERGECOM LLC</div>
+    <div class="footer-sub">Independent Contractor Opportunities</div>
 </div>
 """, unsafe_allow_html=True)
