@@ -486,6 +486,45 @@ st.markdown("""
         opacity: 0.6;
     }
 
+    /* ── UPLOAD AREA ── */
+    .upload-section-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-hint {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+
+    .stFileUploader > div {
+        background: var(--bg-input) !important;
+        border: 1px dashed var(--border-mid) !important;
+        border-radius: var(--radius-md) !important;
+    }
+
+    .stFileUploader label {
+        color: var(--text-secondary) !important;
+    }
+
+    .upload-preview-grid {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    .upload-preview-grid img {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid var(--border-mid);
+    }
+
     /* ── ERROR ── */
     .stAlert {
         border-radius: var(--radius-md) !important;
@@ -507,7 +546,7 @@ def init_db():
     c.execute("""CREATE TABLE IF NOT EXISTS applicants
                  (id INTEGER PRIMARY KEY, name TEXT, phone TEXT, email TEXT,
                   experience TEXT, exp_types TEXT, vehicle TEXT, ladder TEXT, insurance TEXT,
-                  status TEXT, timestamp TEXT)""")
+                  photos TEXT, status TEXT, timestamp TEXT)""")
     conn.commit()
     conn.close()
 
@@ -517,12 +556,12 @@ def save_applicant(data):
     c = conn.cursor()
     c.execute(
         """INSERT INTO applicants
-           (name, phone, email, experience, exp_types, vehicle, ladder, insurance, status, timestamp)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+           (name, phone, email, experience, exp_types, vehicle, ladder, insurance, photos, status, timestamp)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             data["name"], data["phone"], data["email"], data["experience"],
             data["exp_types"], data["vehicle"], data["ladder"], data["insurance"],
-            "NEW", datetime.now().isoformat(),
+            data["photos"], "NEW", datetime.now().isoformat(),
         ),
     )
     conn.commit()
@@ -675,6 +714,28 @@ elif st.session_state.page == "apply":
             tools = st.checkbox("Basic installation tools")
             insurance = st.checkbox("Liability insurance")
 
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+
+        # — Photo Uploads (inside form) —
+        st.markdown('<div class="form-section-label">Previous Install Photos</div>', unsafe_allow_html=True)
+        st.markdown('<div class="upload-hint">Upload up to 2 photos of your previous installation work (JPG, PNG)</div>', unsafe_allow_html=True)
+
+        photo_col1, photo_col2 = st.columns(2)
+        with photo_col1:
+            photo1 = st.file_uploader("Photo 1", type=["jpg", "jpeg", "png"], key="photo1", label_visibility="collapsed")
+        with photo_col2:
+            photo2 = st.file_uploader("Photo 2", type=["jpg", "jpeg", "png"], key="photo2", label_visibility="collapsed")
+
+        # Show previews
+        if photo1 or photo2:
+            prev_col1, prev_col2 = st.columns(2)
+            if photo1:
+                with prev_col1:
+                    st.image(photo1, use_container_width=True, caption="Photo 1")
+            if photo2:
+                with prev_col2:
+                    st.image(photo2, use_container_width=True, caption="Photo 2")
+
         st.markdown("<br>", unsafe_allow_html=True)
 
         submitted = st.form_submit_button("SUBMIT APPLICATION →", use_container_width=True)
@@ -685,6 +746,7 @@ elif st.session_state.page == "apply":
             elif not vehicle or not ladder:
                 st.error("A vehicle and ladder are required for this role.")
             else:
+                # Collect experience types
                 exp_list = []
                 if exp_starlink: exp_list.append("Starlink")
                 if exp_directv: exp_list.append("DirecTV")
@@ -694,6 +756,21 @@ elif st.session_state.page == "apply":
                 if exp_tvmount: exp_list.append("TV Mounting")
                 if exp_cable: exp_list.append("Cable Installation")
                 if exp_other: exp_list.append("Other")
+
+                # Save photos to disk
+                import os
+                os.makedirs("uploads", exist_ok=True)
+                photo_paths = []
+                safe_name = name.strip().replace(" ", "_").lower()
+                ts = datetime.now().strftime("%Y%m%d%H%M%S")
+                for i, photo in enumerate([photo1, photo2], 1):
+                    if photo is not None:
+                        ext = photo.name.split(".")[-1]
+                        filename = f"uploads/{safe_name}_{ts}_photo{i}.{ext}"
+                        with open(filename, "wb") as f:
+                            f.write(photo.getbuffer())
+                        photo_paths.append(filename)
+
                 save_applicant({
                     "name": name.strip(),
                     "phone": phone.strip(),
@@ -703,6 +780,7 @@ elif st.session_state.page == "apply":
                     "vehicle": "Yes" if vehicle else "No",
                     "ladder": "Yes" if ladder else "No",
                     "insurance": "Yes" if insurance else "No",
+                    "photos": " | ".join(photo_paths) if photo_paths else "None",
                 })
                 st.session_state.page = "success"
                 st.rerun()
