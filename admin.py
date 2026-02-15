@@ -87,6 +87,7 @@ st.markdown("""
 # ── DATA ──
 @st.cache_data(ttl=5)
 def load_applicants():
+    # We select '*' to get ALL columns, including state/counties/radius
     res = supabase.table("applicants").select("*").order("created_at", desc=True).execute()
     return res.data or []
 
@@ -104,9 +105,13 @@ if "view_id" not in st.session_state:
 
 # Sidebar
 with st.sidebar:
+    st.header("Admin Controls")
     if st.button("↻ Refresh Data", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
+    
+    # DEBUG MODE: Enable this to see raw data
+    show_debug = st.checkbox("Show Raw Data (Debug)")
 
 data = load_applicants()
 
@@ -150,9 +155,20 @@ if st.session_state.view_id:
         st.error("Applicant not found")
         st.stop()
 
+    # DEBUG: Print raw record if checkbox is on
+    if show_debug:
+        st.warning("DEBUG MODE: Raw Database Record")
+        st.json(record)
+
     # Prep HTML for Detail Card
+    # EXP TAGS
     exp_tags = " ".join([f'<span class="ac-tag">{t.strip()}</span>' for t in record.get("exp_types","").split(",") if t.strip()]) if record.get("exp_types") != "None selected" else '<span style="color:#9CA3AF;font-size:0.8rem;">None</span>'
     
+    # DATA EXTRACTION WITH FALLBACKS
+    r_state = record.get('state') if record.get('state') else "Not Provided"
+    r_radius = f"{record.get('radius')} mi" if record.get('radius') else ""
+    r_counties = record.get('counties') if record.get('counties') else "Not Provided"
+
     st.markdown(f"""
     <div style="background:white;border:1px solid #E5E7EB;border-radius:14px;padding:1.75rem;margin-bottom:1rem;">
         <div style="display:flex;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid #F0F1F3;">
@@ -164,21 +180,31 @@ if st.session_state.view_id:
         </div>
 
         <div class="info-grid">
+            
             <div class="info-box">
                 <div class="info-box-title">Contact</div>
                 <div class="info-row"><div class="info-label">Phone</div><div class="info-value">{record.get('phone','—')}</div></div>
                 <div class="info-row"><div class="info-label">Email</div><div class="info-value">{record.get('email','—')}</div></div>
             </div>
+
             <div class="info-box">
                 <div class="info-box-title">Coverage Area</div>
-                <div class="info-row"><div class="info-label">State / Radius</div><div class="info-value">{record.get('state','—')} <span style="color:#9CA3AF;font-size:0.75rem;">({record.get('radius','—')} mi)</span></div></div>
-                <div class="info-row"><div class="info-label">Counties</div><div class="info-value" style="font-size:0.8rem;">{record.get('counties','—')}</div></div>
+                <div class="info-row">
+                    <div class="info-label">State / Radius</div>
+                    <div class="info-value">{r_state} <span style="color:#9CA3AF;font-size:0.75rem;margin-left:5px;">{r_radius}</span></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Counties</div>
+                    <div class="info-value" style="font-size:0.8rem;line-height:1.4;">{r_counties}</div>
+                </div>
             </div>
+
             <div class="info-box">
                 <div class="info-box-title">Experience</div>
                 <div class="info-row"><div class="info-label">Years</div><div class="info-value">{record.get('experience','—')}</div></div>
                 <div class="info-row"><div class="info-label">Types</div><div style="margin-top:4px;">{exp_tags}</div></div>
             </div>
+
             <div class="info-box">
                 <div class="info-box-title">Equipment</div>
                 <div style="margin-top:8px;">{equip_html(record)}</div>
@@ -205,7 +231,7 @@ if st.session_state.view_id:
             st.cache_data.clear()
             st.rerun()
     with c2:
-        notes = st.text_area("Notes", record.get("notes",""), height=100)
+        notes = st.text_area("Notes", record.get("notes","") or "", height=100)
         if st.button("Save Notes", use_container_width=True):
             update_notes(record["id"], notes)
             st.cache_data.clear()
@@ -299,7 +325,7 @@ for i, tab in enumerate(tabs):
                 </div>
                 """, unsafe_allow_html=True)
 
-                # UNIQUE KEY FIX: Add tab name/index to key to avoid duplicates
+                # UNIQUE KEY FIX
                 if st.button("View", key=f"btn_{cat_list[i] or 'all'}_{app['id']}", use_container_width=True):
                     st.session_state.view_id = app["id"]
                     st.rerun()
