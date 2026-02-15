@@ -1,92 +1,14 @@
 import streamlit as st
 import sqlite3
+import pandas as pd
 from datetime import datetime
 
-# --- CONFIG & CONSTANTS ---
-st.set_page_config(page_title="Starlink Tech Application", page_icon="📡", layout="centered")
-
-SKILLS = [
-    "Satellite systems (DirecTV, HughesNet)",
-    "Starlink installation",
-    "TV mounting",
-    "Security camera installation",
-    "Low voltage wiring (Cat5/Coax)",
-    "Smart home systems",
-    "No installation experience",
-]
-TOOLS = ["Power drill", "Crimper tools", "Cable tester", "Fish tape", "Stud finder", "Signal meter"]
-YEARS_OPTIONS = ["Less than 1 year", "1-2 years", "3-5 years", "5-10 years", "10+ years"]
-
-# --- CUSTOM CSS (THE "PAINT") ---
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
-
-    /* 1. Main Background */
-    .stApp {
-        background-color: #F0F2F6; /* Clean Off-White */
-        font-family: 'DM Sans', sans-serif;
-    }
-
-    /* 2. Headers (Add Blue Color) */
-    h1, h2, h3 {
-        color: #0066FF !important; /* Starlink Blue */
-        font-family: 'DM Sans', sans-serif !important;
-    }
-    
-    /* 3. The "Cards" (White Boxes with Shadow) */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: white;
-        border-radius: 12px;
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Soft Shadow */
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    /* 4. Input Fields */
-    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stTextArea textarea {
-        background-color: #FAFAFA;
-        border: 1px solid #E0E0E0;
-        border-radius: 8px;
-    }
-
-    /* 5. Submit Button (Force Blue) */
-    .stButton button {
-        background-color: #0066FF !important;
-        color: white !important;
-        font-weight: bold;
-        border-radius: 8px;
-        padding: 0.75rem 1rem;
-        border: none;
-        box-shadow: 0 4px 6px rgba(0, 102, 255, 0.2);
-    }
-    .stButton button:hover {
-        background-color: #0052CC !important;
-    }
-
-    /* 6. Hero Section Styling */
-    .hero-box {
-        background: white;
-        padding: 40px;
-        border-radius: 16px;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        margin-bottom: 30px;
-        border-top: 5px solid #0066FF;
-    }
-    .hero-badge {
-        background: #E3FBF0;
-        color: #00875A;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 12px;
-        display: inline-block;
-        margin-bottom: 10px;
-    }
-</style>
-""", unsafe_allow_html=True)
+# --- PAGE CONFIGURATION ---
+st.set_page_config(
+    page_title="Starlink Tech Application",
+    page_icon="📡",
+    layout="centered"
+)
 
 # --- DATABASE SETUP ---
 def init_db():
@@ -95,117 +17,456 @@ def init_db():
     c.execute('''
         CREATE TABLE IF NOT EXISTS applicants (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT, phone TEXT, email TEXT, status TEXT, 
-            skills TEXT, timestamp TEXT
+            name TEXT,
+            phone TEXT,
+            email TEXT,
+            status TEXT,
+            skills TEXT,
+            vehicle TEXT,
+            insurance TEXT,
+            location TEXT,
+            timestamp TEXT,
+            full_data TEXT
         )
     ''')
     conn.commit()
     conn.close()
 
-def save_applicant(data, status):
+def add_applicant(data, status):
     conn = sqlite3.connect('starlink_candidates.db')
     c = conn.cursor()
-    c.execute("INSERT INTO applicants (name, phone, email, status, skills, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
-              (data['name'], data['phone'], data['email'], status, str(data['skills']), datetime.now()))
+    skills_str = ", ".join(data['skills'])
+    date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    full_dump = str(data)
+    c.execute('''INSERT INTO applicants 
+                 (name, phone, email, status, skills, vehicle, insurance, location, timestamp, full_data) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+              (data['name'], data['phone'], data['email'], status, skills_str,
+               data['vehicle'], data['insurance'], data['counties'], date_str, full_dump))
     conn.commit()
     conn.close()
 
 init_db()
 
-# --- SESSION STATE ---
-if 'form' not in st.session_state:
-    st.session_state.form = {
-        "name": "", "phone": "", "email": "", "skills": [], "years": "", 
-        "vehicle": "No", "license": "No", "insurance": "No", "counties": ""
+# --- CUSTOM CSS ---
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+    /* Global */
+    .stApp {
+        background-color: #F4F5F7;
     }
-if 'submitted' not in st.session_state:
-    st.session_state.submitted = False
-    st.session_state.status = ""
+    .block-container {
+        max-width: 720px !important;
+        padding-top: 1rem !important;
+    }
 
-# --- MAIN APP LOGIC ---
+    /* Top brand bar */
+    .brand-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #ECEEF2;
+        margin-bottom: 8px;
+    }
+    .brand-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        color: #1A1D23;
+    }
+    .brand-logo .dim {
+        font-weight: 400;
+        color: #7A7F8D;
+    }
+    .brand-sub {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        color: #7A7F8D;
+    }
 
-if st.session_state.submitted:
-    # SUCCESS SCREEN
-    st.markdown(f"""
-    <div style="text-align:center; padding: 50px; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        <div style="font-size: 60px;">✅</div>
-        <h2 style="color: #0066FF;">Application Received</h2>
-        <p>Thank you, <strong>{st.session_state.form['name']}</strong>.</p>
-        <p>Our team will contact you at <strong>{st.session_state.form['phone']}</strong> within 24 hours.</p>
+    /* Hero section */
+    .hero {
+        text-align: center;
+        padding: 36px 0 28px;
+    }
+    .hero-badge {
+        display: inline-block;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: #00875A;
+        background: #E3FBF0;
+        padding: 4px 14px;
+        border-radius: 20px;
+        margin-bottom: 14px;
+    }
+    .hero h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 30px;
+        font-weight: 700;
+        color: #1A1D23;
+        margin: 0 0 8px;
+        line-height: 1.2;
+    }
+    .hero p {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        color: #7A7F8D;
+        margin: 0 0 24px;
+    }
+    .hero-stats {
+        display: inline-flex;
+        align-items: center;
+        gap: 24px;
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px 32px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        border: 1px solid #ECEEF2;
+    }
+    .hero-stats .stat {
+        text-align: center;
+    }
+    .hero-stats .stat-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1A1D23;
+    }
+    .hero-stats .stat-label {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        color: #9CA1AE;
+        margin-top: 2px;
+    }
+    .hero-stats .divider {
+        width: 1px;
+        height: 32px;
+        background: #ECEEF2;
+    }
+
+    /* Section headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .section-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: 'Space Grotesk', sans-serif;
+        background: #0066FF;
+        color: #fff;
+    }
+    .section-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1A1D23;
+    }
+
+    /* Form styling */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea,
+    .stSelectbox > div > div > div {
+        border-radius: 10px !important;
+        border: 1.5px solid #E2E4E9 !important;
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 14px !important;
+    }
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: #0066FF !important;
+        box-shadow: 0 0 0 1px #0066FF !important;
+    }
+    .stMultiSelect > div > div {
+        border-radius: 10px !important;
+        border: 1.5px solid #E2E4E9 !important;
+    }
+    .stRadio > div {
+        gap: 8px;
+    }
+
+    /* Expander (section cards) */
+    .stExpander {
+        background: #fff;
+        border: 1.5px solid #ECEEF2 !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px;
+    }
+    .stExpander > details > summary {
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 600 !important;
+    }
+
+    /* Container borders */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: 14px !important;
+        border-color: #ECEEF2 !important;
+        background: #fff;
+    }
+
+    /* Submit button */
+    .stFormSubmitButton > button {
+        background: #0066FF !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        padding: 14px 24px !important;
+        box-shadow: 0 2px 8px rgba(0,102,255,.25) !important;
+        transition: all 0.2s ease !important;
+    }
+    .stFormSubmitButton > button:hover {
+        background: #0052CC !important;
+        transform: translateY(-1px);
+    }
+
+    /* Footer */
+    .footer-text {
+        text-align: center;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        color: #9CA1AE;
+        margin-top: 12px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# THE APP
+# ==========================================
+
+# --- BRAND BAR ---
+st.markdown("""
+<div class="brand-bar">
+    <div class="brand-logo">
+        📡 STARLINK <span class="dim">TECH</span>
     </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("Start New Application"):
-        st.session_state.submitted = False
-        st.rerun()
+    <div class="brand-sub">Field Technician Application</div>
+</div>
+""", unsafe_allow_html=True)
 
-else:
-    # HERO HEADER
-    st.markdown("""
-    <div class="hero-box">
-        <div class="hero-badge">NOW HIRING</div>
-        <h1 style="margin: 10px 0;">Starlink Installation Technician</h1>
-        <p style="color: #666;">Apply to become a Certified Field Technician (1099)</p>
+# --- HERO SECTION ---
+st.markdown("""
+<div class="hero">
+    <div class="hero-badge">NOW HIRING</div>
+    <h1>Starlink Installation Technician</h1>
+    <p>Apply to become a Certified Field Technician — Independent Contractor (1099)</p>
+    <div class="hero-stats">
+        <div class="stat">
+            <div class="stat-value">$45–75</div>
+            <div class="stat-label">Per Install</div>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+            <div class="stat-value">Flexible</div>
+            <div class="stat-label">Schedule</div>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+            <div class="stat-value">Training</div>
+            <div class="stat-label">Provided</div>
+        </div>
     </div>
-    """, unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
 
-    # PROGRESS BAR
-    progress = 0
-    if st.session_state.form['name']: progress += 20
-    if st.session_state.form['skills']: progress += 20
-    if st.session_state.form['vehicle'] != "No": progress += 20
-    if st.session_state.form['counties']: progress += 40
-    st.progress(progress)
+# --- APPLICATION FORM ---
+with st.form("application_form"):
 
-    # --- FORM SECTIONS (Using Containers as "Cards") ---
-
+    # --- SECTION 1: CONTACT ---
     with st.container(border=True):
-        st.subheader("👤 1. Contact Information")
-        st.session_state.form['name'] = st.text_input("Full Name *", value=st.session_state.form['name'])
+        st.markdown("""
+        <div class="section-header">
+            <div class="section-num">1</div>
+            <div class="section-title">Contact Information</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        name = st.text_input("Full Name *")
         c1, c2 = st.columns(2)
-        st.session_state.form['phone'] = c1.text_input("Phone Number *", value=st.session_state.form['phone'])
-        st.session_state.form['email'] = c2.text_input("Email Address *", value=st.session_state.form['email'])
-        
-        # STREET ADDRESS REMOVED
+        phone = c1.text_input("Phone Number *")
+        email = c2.text_input("Email Address *")
+
         c3, c4, c5 = st.columns([2, 1, 1])
-        c3.text_input("City")
-        c4.text_input("State")
-        c5.text_input("Zip")
+        city = c3.text_input("City")
+        state = c4.text_input("State")
+        zip_code = c5.text_input("ZIP")
 
+    st.write("")
+
+    # --- SECTION 2: EXPERIENCE ---
     with st.container(border=True):
-        st.subheader("🛠 2. Experience")
-        st.session_state.form['skills'] = st.multiselect("Installation Experience *", SKILLS, default=st.session_state.form['skills'])
-        
-        c1, c2 = st.columns(2)
-        st.session_state.form['years'] = c1.selectbox("Years of Experience", [""] + YEARS_OPTIONS)
-        c2.radio("Experience working on roofs?", ["Yes", "Limited", "No"], horizontal=True)
+        st.markdown("""
+        <div class="section-header">
+            <div class="section-num">2</div>
+            <div class="section-title">Experience & Qualifications</div>
+        </div>
+        """, unsafe_allow_html=True)
 
+        skills = st.multiselect("What installation experience do you have? *",
+            ["Satellite systems (DirecTV, HughesNet)", "Starlink installation", "TV mounting",
+             "Security camera installation", "Low voltage wiring (Cat5/Coax)",
+             "Smart home systems", "No installation experience"])
+
+        c_exp1, c_exp2 = st.columns(2)
+        years = c_exp1.selectbox("Years of Experience *",
+            ["Less than 1 year", "1-2 years", "3-5 years", "5-10 years", "10+ years"])
+        roof_work = c_exp2.radio("Experience working on roofs? *",
+            ["Yes, comfortable", "Yes, limited", "No, but willing", "No"], horizontal=True)
+
+        st.markdown("**Comfortable with tasks:**")
+        t1, t2 = st.columns(2)
+        task_drill = t1.checkbox("Drilling through walls/roofs")
+        task_attic = t2.checkbox("Running cables in attics")
+        t3, t4 = st.columns(2)
+        task_height = t3.checkbox("Working at heights (20ft+)")
+        task_net = t4.checkbox("Troubleshooting network issues")
+
+    st.write("")
+
+    # --- SECTION 3: VEHICLE & TOOLS ---
     with st.container(border=True):
-        st.subheader("🚗 3. Vehicle & Tools")
-        st.session_state.form['vehicle'] = st.radio("Do you have a reliable vehicle?", ["Yes - Truck/Van", "Yes - SUV", "No"], horizontal=True)
-        
-        c1, c2 = st.columns(2)
-        st.session_state.form['license'] = c1.radio("Valid Driver's License?", ["Yes", "No"], horizontal=True)
-        c2.radio("Own a 28ft+ Ladder?", ["Yes", "No"], horizontal=True)
-        
-        st.multiselect("Tools Owned", TOOLS)
+        st.markdown("""
+        <div class="section-header">
+            <div class="section-num">3</div>
+            <div class="section-title">Vehicle & Equipment</div>
+        </div>
+        """, unsafe_allow_html=True)
 
+        vehicle = st.radio("Do you have a reliable vehicle? *",
+            ["Yes - Truck", "Yes - Van", "Yes - SUV", "No"], horizontal=True)
+
+        c_v1, c_v2 = st.columns(2)
+        license_valid = c_v1.radio("Valid Driver's License? *", ["Yes", "No"], horizontal=True)
+        ladder = c_v2.radio("Do you have a 28ft+ extension ladder? *",
+            ["Yes, I own one", "No, but I can get one", "No"], horizontal=True)
+
+        tools = st.multiselect("Tools owned (select all that apply):",
+            ["Power drill", "Crimper tools", "Cable tester", "Fish tape", "Stud finder", "Signal meter"])
+
+    st.write("")
+
+    # --- SECTION 4: INSURANCE ---
     with st.container(border=True):
-        st.subheader("🛡 4. Requirements")
-        st.session_state.form['insurance'] = st.radio("General Liability Insurance", ["Yes, I have it", "No, but I will get it", "No"])
-        st.session_state.form['counties'] = st.text_area("Counties you can cover *", placeholder="e.g. Orange, Lake, Seminole...", value=st.session_state.form['counties'])
+        st.markdown("""
+        <div class="section-header">
+            <div class="section-num">4</div>
+            <div class="section-title">Insurance</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # SUBMIT BUTTON
-    if st.button("Submit Application"):
-        # Validation
-        if not st.session_state.form['name'] or not st.session_state.form['phone']:
-            st.error("Please fill in Name and Phone Number.")
+        insurance = st.radio("Do you have General Liability Insurance? *",
+            ["Yes, I currently have insurance", "No, but I can obtain within 1 week",
+             "No, but I can obtain within 2 weeks", "No"])
+
+    st.write("")
+
+    # --- SECTION 5: AVAILABILITY ---
+    with st.container(border=True):
+        st.markdown("""
+        <div class="section-header">
+            <div class="section-num">5</div>
+            <div class="section-title">Availability</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        c_av1, c_av2 = st.columns(2)
+        start_date = c_av1.selectbox("When can you start?",
+            ["Immediately", "Within 1 week", "Within 2 weeks"])
+        emp_type = c_av2.radio("Employment Type", ["Independent Contractor (1099)"], horizontal=True)
+
+        days_avail = st.multiselect("Days Available",
+            ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+
+    st.write("")
+
+    # --- SECTION 6: SERVICE AREA ---
+    with st.container(border=True):
+        st.markdown("""
+        <div class="section-header">
+            <div class="section-num">6</div>
+            <div class="section-title">Service Area</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        counties = st.text_area("Which counties are you willing to work in? (Separate by comma) *",
+            placeholder="Example: Orange County, Lake County, Seminole County")
+        radius = st.select_slider("Max Travel Radius",
+            options=["15 miles", "30 miles", "50 miles", "75 miles", "100+ miles"])
+
+    st.write("")
+
+    # --- SUBMIT ---
+    submitted = st.form_submit_button("Submit Application →", type="primary", use_container_width=True)
+
+    if submitted:
+        if not name or not phone or not email or not counties:
+            st.error("⚠️ Please fill in all required fields marked with *")
         else:
-            # Logic
-            status = "QUALIFIED"
-            if "No installation experience" in st.session_state.form['skills']: status = "REJECTED"
-            
-            save_applicant(st.session_state.form, status)
-            st.session_state.status = status
-            st.session_state.submitted = True
-            st.rerun()
+            application_status = "QUALIFIED"
+
+            # Logic Engine
+            is_rejected = False
+            if "No installation experience" in skills:
+                is_rejected = True
+            if vehicle == "No":
+                is_rejected = True
+            if license_valid == "No":
+                is_rejected = True
+            if insurance == "No":
+                is_rejected = True
+
+            if is_rejected:
+                application_status = "REJECTED"
+
+            if not is_rejected:
+                has_sat_exp = any(x in skills for x in
+                    ["Satellite systems (DirecTV, HughesNet)", "Starlink installation"])
+                has_ins = (insurance == "Yes, I currently have insurance")
+                if has_sat_exp and has_ins and vehicle in ["Yes - Truck", "Yes - Van"]:
+                    application_status = "PRIORITY"
+
+            data_package = {
+                "name": name, "phone": phone, "email": email,
+                "skills": skills, "vehicle": vehicle, "insurance": insurance,
+                "counties": counties, "answers": "See Full Data"
+            }
+            add_applicant(data_package, application_status)
+
+            if application_status == "REJECTED":
+                st.error("Thank you for your interest. Unfortunately, based on our current requirements, we're unable to proceed with your application at this time.")
+            else:
+                st.balloons()
+                st.success("✅ Application Received Successfully!")
+                if application_status == "PRIORITY":
+                    st.info("⭐ **Priority Candidate** — Your qualifications are an excellent match.")
+                st.markdown(f"""
+                **Thank you, {name}.** Based on your qualifications, you are a strong fit for this position.
+                Our hiring team will review your file and contact you at **{phone}** within 24 hours.
+                """)
+
+# --- FOOTER ---
+st.markdown("""
+<div class="footer-text">
+    By submitting this application, you agree to our terms and conditions. All information is kept confidential.
+</div>
+""", unsafe_allow_html=True)
