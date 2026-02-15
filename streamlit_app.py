@@ -259,19 +259,6 @@ st.markdown("""
         background-color: #000000 !important;
         color: #FFFFFF !important;
     }
-    
-    /* Earnings text - now just normal text */
-    .earnings-note {
-        color: #000000;
-        font-size: 18px;
-        font-weight: 500;
-        text-align: center;
-        margin: 20px 0 30px 0;
-        padding: 15px;
-        background-color: #F8FAFC;
-        border-radius: 12px;
-        border: 1px solid #000000;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -316,8 +303,6 @@ if st.session_state.page == 'landing':
             <div class="job-type">Independent Contractor • 1099 Position</div>
         </div>
     """, unsafe_allow_html=True)
-    
-    <!-- REMOVED PAY BOX - replaced with simple text -->
     
     # About the Role
     st.markdown('<div class="section-title">About the Role</div>', unsafe_allow_html=True)
