@@ -23,7 +23,6 @@ STATUS_COLORS = {
 }
 
 # ── Styles ──
-# I have updated this section with the SPECIFIC CSS you requested
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
@@ -48,36 +47,37 @@ st.markdown("""
     .stApp { background: var(--bg) !important; font-family: 'DM Sans', sans-serif !important; }
     .block-container { padding: 1.5rem 2rem 4rem !important; max-width: 1200px !important; }
 
-    /* ── YOUR CUSTOM CSS ── */
+    /* ── CUSTOM CSS ── */
     .info-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 1rem;
+        gap: 20px;
+        margin: 1.5rem 0;
     }
     .info-box {
         background-color: #f8f9fa;
         border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 15px;
+        border-radius: 12px;
+        padding: 1.25rem;
     }
     .info-box-title {
-        font-weight: bold;
-        color: #555;
-        margin-bottom: 10px;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 1rem;
         text-transform: uppercase;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
         letter-spacing: 0.05em;
     }
     .ac-tag {
-        background-color: #007bff;
-        color: white;
-        padding: 2px 10px;
-        border-radius: 12px;
-        font-size: 0.75rem;
+        background-color: #e6f0ff;
+        color: #2563eb;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 500;
         display: inline-block;
-        margin-right: 5px;
-        margin-bottom: 5px;
+        margin-right: 0.4rem;
+        margin-bottom: 0.4rem;
     }
     /* ───────────────────── */
 
@@ -99,7 +99,7 @@ st.markdown("""
     .kpi-sub.green { color: var(--green); }
 
     /* ── Applicant Card ── */
-    .applicant-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; display: grid; grid-template-columns: 2fr 1fr 1.2fr 1.5fr 1.2fr 0.8fr; align-items: center; gap: 0.75rem; transition: all 0.15s; }
+    .applicant-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; display: grid; grid-template-columns: 2fr 1fr 1.2fr 1.5fr 1.2fr 0.8fr; align-items: center; gap: 0.75rem; transition: all 0.15s; cursor: pointer; }
     .applicant-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 2px 8px rgba(37,99,235,0.06); }
     .ac-name { font-size: 0.9rem; font-weight: 600; color: var(--text-1); }
     .ac-email { font-size: 0.75rem; color: var(--text-3); margin-top: 0.1rem; }
@@ -120,6 +120,7 @@ st.markdown("""
     .detail-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 1rem; }
     .detail-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-light); }
     .detail-name { font-size: 1.5rem; font-weight: 700; color: var(--text-1); }
+    .detail-applied { font-size: 0.8rem; color: var(--text-3); margin-top: 0.25rem; }
     
     /* Info Helpers */
     .info-row { margin-bottom: 0.5rem; }
@@ -135,6 +136,9 @@ st.markdown("""
     .stTabs [data-baseweb="tab"] { font-size: 0.78rem; font-weight: 500; color: var(--text-3); border-radius: 8px; padding: 0.45rem 0.9rem; }
     .stTabs [aria-selected="true"] { background: var(--accent) !important; color: white !important; }
     div.stButton > button { font-weight: 600 !important; font-size: 0.82rem !important; border-radius: 8px !important; }
+    
+    .back-button { color: #2563eb; font-weight: 500; font-size: 0.9rem; margin-bottom: 1rem; cursor: pointer; display: inline-block; }
+    .back-button:hover { text-decoration: underline; }
     
     #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;} .stDeployButton {display: none;}
 </style>
@@ -174,7 +178,7 @@ st.markdown(f"""
         <div class="dash-sep"></div>
         <div class="dash-label">Hiring Dashboard</div>
     </div>
-    <div class="dash-date">{datetime.now().strftime("%B %d, %Y")} &middot; {len(data)} applicants</div>
+    <div class="dash-date">{datetime.now().strftime("%B %d, %Y")} · {len(data)} applicants</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -207,11 +211,12 @@ def equip_html(record):
         items.append(f'<span class="equip-pill {cls}">{sym} {label}</span>')
     return "".join(items)
 
-# ── DETAIL VIEW (FIXED HTML RENDERING) ──
+# ── DETAIL VIEW ──
 if st.session_state.view_id is not None:
     record = next((r for r in data if str(r["id"]) == str(st.session_state.view_id)), None)
 
-    if st.button("← Back to all applicants"):
+    st.markdown('<div class="back-button" onclick="history.back()">← Back to all applicants</div>', unsafe_allow_html=True)
+    if st.button("← Back to all applicants", key="back_btn"):
         st.session_state.view_id = None
         st.rerun()
 
@@ -230,9 +235,6 @@ if st.session_state.view_id is not None:
     counties = record.get("counties", "—")
     radius = record.get("radius", "—")
 
-    # ----------------------------------------------------
-    #  THIS IS THE CRITICAL FIX: unsafe_allow_html=True
-    # ----------------------------------------------------
     html_content = f"""
     <div class="detail-card">
         <div class="detail-top">
@@ -260,7 +262,7 @@ if st.session_state.view_id is not None:
                 <div class="info-box-title">Coverage Area</div>
                 <div class="info-row">
                     <div class="info-label">State / Radius</div>
-                    <div class="info-value">{state} &nbsp;<span style="color:var(--text-3);font-size:0.75rem;">({radius} mi)</span></div>
+                    <div class="info-value">{state} · <span style="color:var(--text-3);font-size:0.75rem;">{radius} mi</span></div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">Counties</div>
@@ -295,7 +297,7 @@ if st.session_state.view_id is not None:
     p1 = record.get("photo1_url", "")
     p2 = record.get("photo2_url", "")
     if p1 or p2:
-        st.markdown('<div class="sec-title" style="margin-top:1rem;margin-bottom:0.5rem;font-size:0.7rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;">Install Photos</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size:0.7rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;margin:1rem 0 0.5rem;">Install Photos</div>', unsafe_allow_html=True)
         pcol1, pcol2 = st.columns(2)
         if p1:
             with pcol1: st.image(p1, use_container_width=True)
@@ -304,7 +306,7 @@ if st.session_state.view_id is not None:
 
     # Actions
     st.markdown('<div style="height:20px;"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="sec-title" style="margin-bottom:0.5rem;font-size:0.7rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;">Actions</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:0.7rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;margin-bottom:0.5rem;">Actions</div>', unsafe_allow_html=True)
     
     act_col1, act_col2 = st.columns([1, 2])
     with act_col1:
@@ -334,7 +336,6 @@ if st.session_state.view_id is not None:
 
     st.stop()
 
-
 # ── DASHBOARD (LIST VIEW) ──
 
 # KPIs
@@ -343,14 +344,14 @@ new_ct = sum(1 for d in data if d.get("status") == "NEW")
 contacted_ct = sum(1 for d in data if d.get("status") == "CONTACTED")
 interview_ct = sum(1 for d in data if d.get("status") == "INTERVIEW")
 hired_ct = sum(1 for d in data if d.get("status") == "HIRED")
-recent_ct = sum(1 for d in data if datetime.fromisoformat(d.get("created_at", "").replace("Z", "+00:00")) > datetime.now(datetime.fromisoformat(d.get("created_at", "").replace("Z", "+00:00")).tzinfo) - timedelta(days=7)) if data else 0
+recent_ct = sum(1 for d in data if datetime.fromisoformat(d.get("created_at", "").replace("Z", "+00:00")) > datetime.now() - timedelta(days=7)) if data else 0
 
 st.markdown(f"""
 <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Total</div><div class="kpi-num">{total}</div><div class="kpi-sub muted">all time</div></div>
+    <div class="kpi"><div class="kpi-label">Total</div><div class="kpi-num">{total}</div><div class="kpi-sub">all time</div></div>
     <div class="kpi"><div class="kpi-label">New</div><div class="kpi-num">{new_ct}</div><div class="kpi-sub green">+{recent_ct} this week</div></div>
-    <div class="kpi"><div class="kpi-label">Contacted</div><div class="kpi-num">{contacted_ct}</div><div class="kpi-sub muted">pipeline</div></div>
-    <div class="kpi"><div class="kpi-label">Interview</div><div class="kpi-num">{interview_ct}</div><div class="kpi-sub muted">scheduled</div></div>
+    <div class="kpi"><div class="kpi-label">Contacted</div><div class="kpi-num">{contacted_ct}</div><div class="kpi-sub">pipeline</div></div>
+    <div class="kpi"><div class="kpi-label">Interview</div><div class="kpi-num">{interview_ct}</div><div class="kpi-sub">scheduled</div></div>
     <div class="kpi"><div class="kpi-label">Hired</div><div class="kpi-num">{hired_ct}</div><div class="kpi-sub green">active</div></div>
 </div>
 """, unsafe_allow_html=True)
@@ -395,25 +396,35 @@ for i, tab in enumerate(tabs):
 
             for app in subset:
                 rad = f"{app.get('radius')} mi" if app.get("radius") else ""
-                st.markdown(f"""
-                <div class="applicant-card">
-                    <div>
-                        <div class="ac-name">{app.get("name", "—")}</div>
-                        <div class="ac-email">{app.get("email") or ""} &nbsp;{status_badge_html(app.get("status", "NEW"))}</div>
+                
+                # Create a unique key for this applicant's button
+                btn_key = f"view_{app['id']}"
+                
+                # Use columns to place the card and button together
+                col1, col2 = st.columns([5, 1])
+                
+                with col1:
+                    st.markdown(f"""
+                    <div class="applicant-card">
+                        <div>
+                            <div class="ac-name">{app.get("name", "—")}</div>
+                            <div class="ac-email">{app.get("email") or ""} {status_badge_html(app.get("status", "NEW"))}</div>
+                        </div>
+                        <div>
+                            <div class="ac-location">{app.get("state", "—")}</div>
+                            <div class="ac-radius">{rad}</div>
+                        </div>
+                        <div class="ac-phone">{app.get("phone", "—")}</div>
+                        <div>
+                            <div class="ac-exp">{app.get("experience", "—")}</div>
+                            <div style="margin-top:0.2rem;">{exp_tags_html(app.get("exp_types", ""))}</div>
+                        </div>
+                        <div style="display:flex;">{equip_html(app)}</div>
+                        <div class="ac-date">{fmt_date_short(app.get("created_at", ""))}</div>
                     </div>
-                    <div>
-                        <div class="ac-location">{app.get("state", "—")}</div>
-                        <div class="ac-radius">{rad}</div>
-                    </div>
-                    <div class="ac-phone">{app.get("phone", "—")}</div>
-                    <div>
-                        <div class="ac-exp">{app.get("experience", "—")}</div>
-                        <div style="margin-top:0.2rem;">{exp_tags_html(app.get("exp_types", ""))}</div>
-                    </div>
-                    <div style="display:flex;">{equip_html(app)}</div>
-                    <div class="ac-date">{fmt_date_short(app.get("created_at", ""))}</div>
-                </div>
-                """, unsafe_allow_html=True)
-                if st.button(f"View Details", key=f"btn_{app['id']}", use_container_width=True):
-                    st.session_state.view_id = app["id"]
-                    st.rerun()
+                    """, unsafe_allow_html=True)
+                
+                with col2:
+                    if st.button("View", key=btn_key, use_container_width=True):
+                        st.session_state.view_id = app["id"]
+                        st.rerun()
