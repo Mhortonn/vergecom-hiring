@@ -102,6 +102,19 @@ st.markdown("""
         font-weight: 700;
     }
 
+    .long-description {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #94A3B8;
+        margin: 2rem 0 2.5rem 0;
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 20px;
+        border-left: 4px solid #3B82F6;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+    }
+
     .requirement-item {
         display: flex;
         align-items: flex-start;
@@ -185,14 +198,19 @@ if 'page' not in st.session_state: st.session_state.page = 'landing'
 if st.session_state.page == 'landing':
     st.markdown('<div class="premium-card">', unsafe_allow_html=True)
     st.markdown('<span class="company-tag">Vergecom LLC</span><h1>Starlink<br>Technician</h1><p class="subtitle">Join our elite field force as an Independent Contractor (1099).</p>', unsafe_allow_html=True)
-    st.markdown('<div class="info-grid-container"><div class="info-box"><div class="info-box-label">Compensation</div><div class="info-box-value">$1,200 – $1,800 / Week</div></div><div class="info-box"><div class="info-box-label">Location</div><div class="info-box-value">Greater Metro Area</div></div></div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-header">Position Summary</div><p style="font-size: 1.1rem; line-height: 1.6; color: #94A3B8; margin-bottom: 2rem;">Vergecom is seeking professional Field Technicians to install and service Starlink satellite systems. This is a high-volume, performance-driven role for those with technical precision.</p>', unsafe_allow_html=True)
+    
+    # Long paragraph about the role
+    st.markdown("""
+    <div class="long-description">
+        As a Vergecom Starlink Field Technician, you'll be at the forefront of the satellite internet revolution, bringing high-speed connectivity to homes and businesses across the greater metropolitan area. This is not just another installation job—it's an opportunity to master the cutting-edge technology that's reshaping global communications. You'll be responsible for the complete end-to-end installation of Starlink systems, from initial site survey and signal analysis to precision roof mounting, cable routing, and final system optimization. Our technicians are the face of Vergecom, trusted to deliver flawless installations that meet the exacting standards of both our company and SpaceX. You'll work independently, managing your own schedule and routes, while being backed by our dedicated support team. The role demands a unique blend of technical aptitude, problem-solving skills, and customer service excellence. You'll need to think on your feet, adapt to diverse residential and commercial environments, and troubleshoot everything from obstructions to connectivity issues in real-time. For those who excel, this position offers significant earning potential through our performance-based compensation structure, with top technicians consistently exceeding $2,000 per week. We're looking for self-starters who take pride in their workmanship, understand the importance of punctuality and professional presentation, and are ready to commit to the rigorous demands of a high-volume installation schedule. If you have the technical background, the right equipment, and the drive to succeed, Vergecom provides the platform, the training, and the consistent workflow to help you build a thriving career in the new space economy.
+    </div>
+    """, unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown('<div class="section-header">Responsibilities</div><div class="requirement-item">3-6 precision installs daily</div><div class="requirement-item">Advanced roof mounting</div><div class="requirement-item">Cable termination</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Responsibilities</div><div class="requirement-item">3-6 precision installs daily</div><div class="requirement-item">Advanced roof mounting</div><div class="requirement-item">Cable termination and weatherproofing</div><div class="requirement-item">Signal strength optimization</div>', unsafe_allow_html=True)
     with col2:
-        st.markdown('<div class="section-header">Requirements</div><div class="requirement-item">Truck/Van/SUV</div><div class="requirement-item">28ft Fiberglass ladder</div><div class="requirement-item">Liability Insurance</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Requirements</div><div class="requirement-item">Truck/Van/SUV with ladder rack</div><div class="requirement-item">28ft Fiberglass ladder</div><div class="requirement-item">Liability Insurance (min $1M)</div><div class="requirement-item">Smartphone with data plan</div>', unsafe_allow_html=True)
     
     st.markdown('<div style="margin-top: 3rem;">', unsafe_allow_html=True)
     if st.button("Begin Application"):
@@ -213,21 +231,40 @@ elif st.session_state.page == 'application':
         phone = c1.text_input("Phone")
         email = c2.text_input("Email")
         st.markdown('<div class="section-header">2. Expertise</div>', unsafe_allow_html=True)
-        skills = st.multiselect("Skills", ["Satellite", "Starlink", "TV Mounting", "Low Voltage"])
-        years = st.selectbox("Experience", ["Select", "< 1 year", "1-2 years", "3-5 years", "5+ years"])
+        skills = st.multiselect("Skills", ["Satellite Installation", "Starlink Certified", "TV Mounting", "Low Voltage Wiring", "Networking", "Roofing"])
+        years = st.selectbox("Experience", ["Select", "< 1 year", "1-2 years", "3-5 years", "5+ years", "10+ years"])
         st.markdown('<div class="section-header">3. Logistics</div>', unsafe_allow_html=True)
-        v = st.radio("Truck/Van?", ["Yes", "No"], horizontal=True)
-        l = st.radio("28ft Ladder?", ["Yes", "No"], horizontal=True)
+        v = st.radio("Do you have a reliable truck/van/SUV?", ["Yes", "No"], horizontal=True)
+        l = st.radio("Do you own a 28ft+ fiberglass ladder?", ["Yes", "No"], horizontal=True)
+        insurance = st.radio("Do you have general liability insurance?", ["Yes", "No", "Willing to obtain"], horizontal=True)
         sub = st.form_submit_button("Submit Application")
         if sub:
-            if not name or not phone: st.error("Fields required")
+            if not name or not phone: 
+                st.error("Name and phone are required fields")
             else:
-                save_applicant({"name":name,"phone":phone,"email":email,"city":"","state":"","zip":"","skills":skills,"years_exp":years,"roof_work":"","vehicle":v,"ladder":l,"license":"","insurance":"","service_area":""}, "PENDING")
-                st.session_state.page = 'success'; st.rerun()
+                save_applicant({
+                    "name": name,
+                    "phone": phone,
+                    "email": email,
+                    "city": "",
+                    "state": "",
+                    "zip": "",
+                    "skills": skills,
+                    "years_exp": years,
+                    "roof_work": "",
+                    "vehicle": v,
+                    "ladder": l,
+                    "license": "",
+                    "insurance": insurance,
+                    "service_area": ""
+                }, "PENDING")
+                st.session_state.page = 'success'
+                st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
 elif st.session_state.page == 'success':
-    st.markdown('<div class="premium-card" style="text-align: center; padding: 5rem 2rem;"><h1>Success</h1><p class="subtitle">Application received. We will contact you shortly.</p>', unsafe_allow_html=True)
-    if st.button("Home"):
-        st.session_state.page = 'landing'; st.rerun()
+    st.markdown('<div class="premium-card" style="text-align: center; padding: 5rem 2rem;"><h1>Application Received</h1><p class="subtitle">Thank you for your interest in joining the Vergecom team. Our hiring manager will review your qualifications and contact you within 24-48 hours to discuss next steps.</p>', unsafe_allow_html=True)
+    if st.button("Return to Home"):
+        st.session_state.page = 'landing'
+        st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
