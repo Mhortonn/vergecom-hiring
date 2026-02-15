@@ -218,9 +218,11 @@ def load_applicants():
 @st.cache_data(ttl=60)
 def load_site_settings():
     try:
-        res = supabase.table("site_settings").select("*").eq("id", 1).single().execute()
-        return res.data
-    except:
+        res = supabase.table("site_settings").select("*").eq("id", 1).execute()
+        if res.data and len(res.data) > 0:
+            return res.data[0]
+        return None
+    except Exception as e:
         return None
 
 def update_status(aid, s):
@@ -523,20 +525,24 @@ ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;""", language="sql")
                                     placeholder="Reliable truck/van/SUV, 24ft+ fiberglass ladder, ...")
 
             if st.form_submit_button("🚀 Publish Updates to Live Site", type="primary", use_container_width=True):
-                supabase.table("site_settings").update({
-                    "hero_title": new_title,
-                    "hero_subtitle": new_subtitle,
-                    "earning_min": earn_min,
-                    "earning_max": earn_max,
-                    "daily_installs": daily,
-                    "job_desc": new_desc,
-                    "duties": new_duties,
-                    "requirements": new_reqs,
-                    "last_updated": datetime.now().isoformat(),
-                }).eq("id", 1).execute()
-                st.cache_data.clear()
-                st.success("✅ Website content updated. Changes are live.")
-                st.rerun()
+                try:
+                    supabase.table("site_settings").upsert({
+                        "id": 1,
+                        "hero_title": new_title,
+                        "hero_subtitle": new_subtitle,
+                        "earning_min": earn_min,
+                        "earning_max": earn_max,
+                        "daily_installs": daily,
+                        "job_desc": new_desc,
+                        "duties": new_duties,
+                        "requirements": new_reqs,
+                        "last_updated": datetime.now().isoformat(),
+                    }).execute()
+                    st.cache_data.clear()
+                    st.success("✅ Website content updated. Changes are live.")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Failed to update: {e}")
 
         if curr.get("last_updated"):
             st.markdown(f'<div style="font-size:0.72rem;color:var(--text-3);margin-top:0.5rem;">Last updated: {fmt_full(curr["last_updated"])}</div>', unsafe_allow_html=True)
