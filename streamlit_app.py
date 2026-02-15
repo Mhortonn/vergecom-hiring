@@ -180,26 +180,79 @@ st.markdown("""
         color: #1A1D23;
     }
 
-    /* Form styling */
+    /* Form styling - inputs */
     .stTextInput > div > div > input,
-    .stTextArea > div > div > textarea,
-    .stSelectbox > div > div > div {
+    .stTextArea > div > div > textarea {
+        background-color: #FFFFFF !important;
+        color: #1A1D23 !important;
         border-radius: 10px !important;
         border: 1.5px solid #E2E4E9 !important;
         font-family: 'DM Sans', sans-serif !important;
         font-size: 14px !important;
+        caret-color: #0066FF !important;
     }
     .stTextInput > div > div > input:focus,
     .stTextArea > div > div > textarea:focus {
         border-color: #0066FF !important;
         box-shadow: 0 0 0 1px #0066FF !important;
+        background-color: #FFFFFF !important;
     }
-    .stMultiSelect > div > div {
+    .stTextInput > div > div > input::placeholder,
+    .stTextArea > div > div > textarea::placeholder {
+        color: #9CA1AE !important;
+    }
+
+    /* Selectbox */
+    .stSelectbox > div > div {
+        background-color: #FFFFFF !important;
         border-radius: 10px !important;
         border: 1.5px solid #E2E4E9 !important;
     }
+    .stSelectbox > div > div > div {
+        background-color: #FFFFFF !important;
+        color: #1A1D23 !important;
+    }
+
+    /* Multiselect */
+    .stMultiSelect > div > div {
+        background-color: #FFFFFF !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #E2E4E9 !important;
+    }
+    .stMultiSelect > div > div > div {
+        background-color: #FFFFFF !important;
+        color: #1A1D23 !important;
+    }
+
+    /* Select slider */
+    .stSlider > div > div {
+        background-color: transparent !important;
+    }
+
+    /* Radio buttons */
     .stRadio > div {
         gap: 8px;
+    }
+    .stRadio > div > label {
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #E2E4E9 !important;
+        border-radius: 8px !important;
+        padding: 6px 14px !important;
+    }
+
+    /* Checkboxes */
+    .stCheckbox > label {
+        color: #3A3F4B !important;
+    }
+
+    /* Labels */
+    .stTextInput > label, .stTextArea > label, .stSelectbox > label,
+    .stMultiSelect > label, .stRadio > label, .stCheckbox > label,
+    .stSlider > label {
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #4A4F5C !important;
     }
 
     /* Expander (section cards) */
