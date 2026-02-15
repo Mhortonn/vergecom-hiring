@@ -3,10 +3,10 @@ import pandas as pd
 from datetime import datetime
 from supabase import create_client
 
-# ── PAGE CONFIG (Max Density View) ──
-st.set_page_config(page_title="Vergecom | Ops Control", page_icon="🏢", layout="wide")
+# ── PAGE CONFIG (Enterprise Wide View) ──
+st.set_page_config(page_title="Vergecom | Master Control", page_icon="🏢", layout="wide")
 
-# ── DSI CORPORATE STYLING (FIXED SYNTAX) ──
+# ── DSI CORPORATE STYLING ──
 st.markdown("""
 <style>
     html, body, [class*="st-"] { font-family: 'Segoe UI', Arial, sans-serif; }
@@ -27,7 +27,7 @@ st.markdown("""
     .block-container { padding-top: 1rem !important; }
 </style>
 <div class="portal-header">
-    <span>Assign Technician - Vergecom Operational Console</span>
+    <span>Master Registry - Vergecom Operations Console</span>
     <span style="font-size: 14px; font-weight: 400;">{date}</span>
 </div>
 """.replace("{date}", datetime.now().strftime("%A, %B %d, %Y")), unsafe_allow_html=True)
@@ -39,25 +39,20 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ── DATA FETCHING & SANITIZATION ──
 @st.cache_data(ttl=2)
-def get_sanitized_data():
+def get_ops_data():
     try:
         res = supabase.table("applicants").select("*").order("created_at", desc=True).execute()
         if not res.data: return pd.DataFrame()
         
         temp_df = pd.DataFrame(res.data)
-
-        # 1. STANDARDIZE COLUMN NAMES (Ensures 'email' is found)
+        # Normalize columns to lowercase to find 'email', 'phone', etc.
         temp_df.columns = [c.lower() for c in temp_df.columns]
         
-        # 2. FIX RADIUS: Force to numeric to stop StreamlitAPIException
+        # Clean numeric columns to stop StreamlitAPIException crashes
         if 'radius' in temp_df.columns:
             temp_df['radius'] = pd.to_numeric(temp_df['radius'], errors='coerce').fillna(0).astype(int)
         
-        # 3. FIX DATES: Force standardized format
-        if 'created_at' in temp_df.columns:
-            temp_df['created_at'] = pd.to_datetime(temp_df['created_at'], errors='coerce')
-        
-        # 4. CLEAN NULLS: Force everything else to string for stable display
+        # Standardize strings
         for col in temp_df.columns:
             if col not in ['radius', 'created_at']:
                 temp_df[col] = temp_df[col].fillna("—").astype(str)
@@ -65,86 +60,85 @@ def get_sanitized_data():
     except Exception:
         return pd.DataFrame()
 
-df = get_sanitized_data()
+df = get_ops_data()
 
-# ── 1-CLICK TOP FILTERS ──
+# ── FILTERS ──
 with st.container():
-    c1, c2, c3, c4 = st.columns([2, 1, 1, 0.8])
-    with c1: q = st.text_input("Master Search", placeholder="Search Name, Phone, or Territory...", label_visibility="collapsed")
-    
-    states = sorted(df['state'].unique().tolist()) if not df.empty and 'state' in df.columns else []
-    with c2: s_state = st.selectbox("State Filter", ["All States"] + states, label_visibility="collapsed")
-    with c3: s_status = st.selectbox("Pipeline Stage", ["All", "NEW", "REVIEWED", "CONTACTED", "HIRED", "REJECTED"], label_visibility="collapsed")
-    with c4: st.button("Apply Filters", use_container_width=True)
+    c1, c2, c3 = st.columns([2, 1, 1])
+    with c1: q = st.text_input("Search Database", placeholder="Search Name, Phone, Email, or Territory...", label_visibility="collapsed")
+    with c2: s_state = st.selectbox("State Filter", ["All States"] + (sorted(df['state'].unique().tolist()) if not df.empty else []), label_visibility="collapsed")
+    with c3: s_status = st.selectbox("Status Filter", ["All", "NEW", "REVIEWED", "CONTACTED", "HIRED", "REJECTED"], label_visibility="collapsed")
 
-# ── THE MASTER DATA GRID (DSI SYSTEMS STYLE) ──
-
+# ────────────────────────────────────────────────────────
+#  THE "EDIT EVERYTHING" MASTER GRID
+# ────────────────────────────────────────────────────────
 if not df.empty:
     f_df = df.copy()
     
-    # Apply Filters
+    # Filter Logic
     if q:
         f_df = f_df[f_df.apply(lambda row: row.astype(str).str.contains(q, case=False).any(), axis=1)]
-    if s_state != "All States" and 'state' in f_df.columns:
+    if s_state != "All States":
         f_df = f_df[f_df['state'] == s_state]
-    if s_status != "All" and 'status' in f_df.columns:
+    if s_status != "All":
         f_df = f_df[f_df['status'] == s_status]
 
-    # ALL FIELDS FROM APPLICATION (Displayed as Columns)
-    all_requested_cols = [
+    st.write(f"**Records Found:** {len(f_df)} (Double-click any cell to change it)")
+
+    # Define all possible application fields
+    all_fields = [
         'id', 'name', 'phone', 'email', 'state', 'counties', 'radius', 
-        'experience', 'exp_types', 'vehicle', 'ladder', 
-        'tools', 'insurance', 'status', 'notes', 'created_at'
+        'experience', 'exp_types', 'vehicle', 'ladder', 'tools', 
+        'insurance', 'status', 'notes', 'created_at'
     ]
+    
+    # Filter to only existing columns
+    display_cols = [c for c in all_fields if c in f_df.columns]
 
-    # Only select columns that actually exist in your Supabase table
-    existing_cols = [col for col in all_requested_cols if col in f_df.columns]
-
-    st.write(f"**Technicians Loaded:** {len(f_df)}")
-
-    # THE MASTER GRID: EDITABLE AND NO EXTRA CLICKS REQUIRED
+    # Render the Interactive Data Editor
+    # This allows editing Name, Phone, Email, Radius, Counties, Skills, etc.
     edited_df = st.data_editor(
-        f_df[existing_cols], 
+        f_df[display_cols],
         use_container_width=True,
         height=600,
         hide_index=True,
         column_config={
-            "id": None, 
-            "name": st.column_config.TextColumn("Technician Name", width="medium"),
-            "phone": "Contact No.",
-            "email": st.column_config.TextColumn("Email Address", width="medium"),
-            "state": "State",
-            "counties": st.column_config.TextColumn("Territory", width="medium"),
-            "radius": st.column_config.NumberColumn("Radius", format="%d mi"),
+            "id": None, # Non-editable ID
+            "name": st.column_config.TextColumn("Full Name", width="medium"),
+            "phone": st.column_config.TextColumn("Phone No.", width="small"),
+            "email": st.column_config.TextColumn("Email", width="medium"),
+            "state": st.column_config.TextColumn("State", width="small"),
+            "counties": st.column_config.TextColumn("Territory/Counties", width="large"),
+            "radius": st.column_config.NumberColumn("Radius (mi)", format="%d"),
             "status": st.column_config.SelectboxColumn("Status", options=["NEW", "REVIEWED", "CONTACTED", "HIRED", "REJECTED"], required=True),
-            "notes": st.column_config.TextColumn("Internal Notes (Editable)", width="large"),
-            "created_at": st.column_config.DatetimeColumn("Joined", format="MM/DD/YY"),
+            "notes": st.column_config.TextColumn("Admin Notes", width="large"),
+            "exp_types": "Skills/Types",
+            "created_at": st.column_config.DatetimeColumn("Date Joined", format="MM/DD/YY"),
         }
     )
 
-    # ── DATABASE SYNC ──
-    if st.button("💾 SYNCHRONIZE MASTER REGISTRY", type="primary", use_container_width=True):
+    # ── BUTTON 2: SYNC EVERYTHING ──
+    if st.button("💾 SAVE ALL CHANGES TO SYSTEM", type="primary", use_container_width=True):
+        updated_count = 0
         for index, row in edited_df.iterrows():
-            original_row = df[df['id'] == row['id']].iloc[0]
-            if row['status'] != original_row['status'] or row['notes'] != original_row['notes']:
-                supabase.table("applicants").update({
-                    "status": row['status'],
-                    "notes": row['notes']
-                }).eq("id", row['id']).execute()
+            # Find the original record in the DB to check for differences
+            original = df[df['id'] == row['id']].iloc[0]
+            
+            # Detect changes across ALL editable fields
+            if not row.equals(original):
+                # Build the update dictionary dynamically
+                update_data = {col: row[col] for col in display_cols if col not in ['id', 'created_at']}
+                
+                # Push update to Supabase
+                supabase.table("applicants").update(update_data).eq("id", row['id']).execute()
+                updated_count += 1
         
-        st.success("Record Synchronized Successfully.")
-        st.cache_data.clear()
-        st.rerun()
+        if updated_count > 0:
+            st.success(f"Successfully Synchronized {updated_count} technician records.")
+            st.cache_data.clear()
+            st.rerun()
+        else:
+            st.info("No changes detected in the registry.")
 
-    # Asset Verification section
-    st.markdown("---")
-    preview_name = st.selectbox("Select technician to view assets:", f_df['name'].unique())
-    if preview_name:
-        assets = f_df[f_df['name'] == preview_name].iloc[0]
-        p1, p2 = assets.get("photo1_url"), assets.get("photo2_url")
-        if (p1 and p1 != "—") or (p2 and p2 != "—"):
-            i1, i2 = st.columns(2)
-            if p1 and p1 != "—": i1.image(p1, caption="Asset 1", use_container_width=True)
-            if p2 and p2 != "—": i2.image(p2, caption="Asset 2", use_container_width=True)
 else:
-    st.error("Registry Offline or Data Missing.")
+    st.error("Registry Offline: Could not retrieve technician database.")
