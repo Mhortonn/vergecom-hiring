@@ -287,6 +287,21 @@ st.markdown("""
         padding: 20px 0 30px 0;
         margin-bottom: 20px;
     }
+    
+    /* Qualifying questions highlight */
+    .qualifying-box {
+        background-color: #F8FAFC;
+        border-left: 4px solid #000000;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .qualifying-box p {
+        margin: 0;
+        color: #000000;
+        font-weight: 500;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -299,23 +314,35 @@ def init_db():
     conn = sqlite3.connect('vergecom_candidates.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS applicants 
-                 (id INTEGER PRIMARY KEY, name TEXT, phone TEXT, email TEXT, 
-                  status TEXT, skills TEXT, timestamp TEXT)''')
+                 (id INTEGER PRIMARY KEY, 
+                  name TEXT, phone TEXT, email TEXT, city TEXT, state TEXT, zip TEXT,
+                  skills TEXT, years_exp TEXT, roof_work TEXT,
+                  vehicle TEXT, ladder TEXT, license TEXT, tools TEXT,
+                  insurance TEXT, service_area TEXT, start_date TEXT,
+                  status TEXT, timestamp TEXT)''')
     conn.commit()
     conn.close()
 
 def save_applicant(data, status):
     conn = sqlite3.connect('vergecom_candidates.db')
     c = conn.cursor()
-    c.execute("INSERT INTO applicants (name, phone, status, skills, timestamp) VALUES (?, ?, ?, ?, ?)",
-              (data['name'], data['phone'], status, str(data.get('skills', [])), datetime.now()))
+    c.execute("""
+        INSERT INTO applicants 
+        (name, phone, email, city, state, zip, skills, years_exp, roof_work,
+         vehicle, ladder, license, tools, insurance, service_area, start_date, status, timestamp) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (data['name'], data['phone'], data['email'], data['city'], data['state'], data['zip'],
+         str(data['skills']), data['years_exp'], data['roof_work'],
+         data['vehicle'], data['ladder'], data['license'], str(data['tools']),
+         data['insurance'], data['service_area'], data['start_date'], status, datetime.now()))
     conn.commit()
     conn.close()
 
 init_db()
 
 # ==========================================
-# PAGE 1: LANDING PAGE (ALL BLACK TEXT)
+# PAGE 1: LANDING PAGE
 # ==========================================
 if st.session_state.page == 'landing':
     
@@ -331,7 +358,7 @@ if st.session_state.page == 'landing':
         </div>
     """, unsafe_allow_html=True)
     
-    # Company header (slightly modified)
+    # Company header
     st.markdown("""
         <div class="company-header">
             <div class="company-name">FIELD SERVICE TECHNICIAN</div>
@@ -394,7 +421,7 @@ if st.session_state.page == 'landing':
     st.markdown('</div>', unsafe_allow_html=True)  # Close main-container
 
 # ==========================================
-# PAGE 2: APPLICATION FORM
+# PAGE 2: APPLICATION FORM (Hiring Manager Script)
 # ==========================================
 elif st.session_state.page == 'application':
     
@@ -410,72 +437,193 @@ elif st.session_state.page == 'application':
     
     # Form header
     st.markdown("""
-        <div class="form-title">Starlink Installer Application</div>
-        <div class="form-subtitle">Vergecom LLC • Please complete all information below</div>
+        <div class="form-title">Starlink Installation Technician Application</div>
+        <div class="form-subtitle">Independent Contractor (1099) • Vergecom LLC</div>
     """, unsafe_allow_html=True)
     
-    # Contact Information
-    st.subheader("Contact Information")
-    name = st.text_input("Full name *")
+    # 1. CONTACT INFORMATION
+    st.subheader("📋 Contact Information")
+    
+    name = st.text_input("Full Name *")
+    
     col1, col2 = st.columns(2)
     with col1:
-        phone = st.text_input("Phone number *")
+        phone = st.text_input("Phone Number *")
     with col2:
-        email = st.text_input("Email address")
+        email = st.text_input("Email Address")
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        city = st.text_input("City")
+        city = st.text_input("City *")
     with col2:
-        state = st.text_input("State")
+        state = st.text_input("State *")
     with col3:
-        zip_code = st.text_input("ZIP code")
+        zip_code = st.text_input("Zip Code *")
     
     st.markdown("<hr>", unsafe_allow_html=True)
     
-    # Experience
-    st.subheader("Experience")
-    experience = st.selectbox("Years of installation experience *", 
-                            ["Select", "Less than 1 year", "1–3 years", "3–5 years", "5–10 years", "10+ years"])
+    # 2. PROFESSIONAL EXPERIENCE
+    st.subheader("🛠️ Professional Experience")
     
-    st.markdown("<hr>", unsafe_allow_html=True)
+    # Multi-select Skills
+    skills = st.multiselect(
+        "Select your areas of experience *",
+        [
+            "Satellite systems (DirecTV/Dish)",
+            "Starlink installation",
+            "TV mounting",
+            "Security cameras",
+            "Low voltage wiring (Cat5/Coax)",
+            "Smart home systems"
+        ]
+    )
     
-    # Equipment
-    st.subheader("Equipment & Requirements")
     col1, col2 = st.columns(2)
     with col1:
-        vehicle = st.radio("Reliable truck/van/SUV? *", ["Yes", "No"], horizontal=True)
-        ladder = st.radio("Own 28ft+ ladder? *", ["Yes", "No"], horizontal=True)
+        # Years of Experience
+        years_exp = st.selectbox(
+            "Years of Experience *",
+            ["Select", "< 1 year", "1-2 years", "3-5 years", "5+ years"]
+        )
+    
     with col2:
-        license_valid = st.radio("Valid driver's license? *", ["Yes", "No"], horizontal=True)
-        height_work = st.radio("Comfortable with heights? *", ["Yes", "No"], horizontal=True)
+        # Roof Work Comfort Level
+        roof_work = st.radio(
+            "Are you comfortable working on roofs? *",
+            ["Yes", "Limited", "No"],
+            horizontal=True
+        )
     
     st.markdown("<hr>", unsafe_allow_html=True)
     
-    # Availability
-    st.subheader("Availability")
-    counties = st.text_area("Counties where you can work *", placeholder="e.g., Miami-Dade, Broward, Palm Beach")
-    weekend = st.checkbox("Available for weekend work")
+    # 3. VEHICLE & EQUIPMENT (Qualifying Questions)
+    st.subheader("🚗 Vehicle & Equipment")
+    st.markdown('<div class="qualifying-box"><p>⚠️ Minimum requirements to qualify for this position</p></div>', unsafe_allow_html=True)
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        # Vehicle
+        vehicle = st.radio(
+            "Do you have a reliable Truck, Van, or SUV? *",
+            ["Yes", "No"],
+            horizontal=True
+        )
+        
+        # Ladder
+        ladder = st.radio(
+            "Do you own a 28ft+ extension ladder? *",
+            ["Yes", "No"],
+            horizontal=True
+        )
     
-    # Submit
+    with col2:
+        # Driver's License
+        license_valid = st.radio(
+            "Do you have a valid Driver's License? *",
+            ["Yes", "No"],
+            horizontal=True
+        )
+    
+    # Tools Checklist
+    tools = st.multiselect(
+        "Checklist of required tools you own *",
+        [
+            "Drill",
+            "Impact Driver",
+            "Crimper",
+            "Cable Tester",
+            "Fish Tape",
+            "Signal Meter"
+        ]
+    )
+    
+    st.markdown("<hr>", unsafe_allow_html=True)
+    
+    # 4. REQUIREMENTS & LOGISTICS
+    st.subheader("📦 Requirements & Logistics")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        # Insurance
+        insurance = st.radio(
+            "Do you have General Liability Insurance? *",
+            ["Yes", "Will Obtain", "No"],
+            horizontal=True
+        )
+    
+    with col2:
+        # Start Date
+        start_date = st.radio(
+            "How soon can you start? *",
+            ["Immediately", "1-2 Weeks", "2+ Weeks"],
+            horizontal=True
+        )
+    
+    # Service Area
+    service_area = st.text_area(
+        "Counties you are willing to cover *",
+        placeholder="e.g., Miami-Dade, Broward, Palm Beach",
+        height=80
+    )
+    
+    st.markdown("<hr>", unsafe_allow_html=True)
+    
+    # Disclaimer
+    st.markdown("""
+        <p style="color: #666; font-size: 14px; text-align: center;">
+            By submitting this application, you confirm that the information provided is accurate and complete.
+            Vergecom LLC is an equal opportunity employer.
+        </p>
+    """, unsafe_allow_html=True)
+    
+    # Submit button
     if st.button("SUBMIT APPLICATION", use_container_width=True):
-        if not name or not phone or experience == "Select" or vehicle == "No" or ladder == "No":
-            st.error("⚠️ Please complete all required fields and ensure you meet the minimum requirements.")
+        # Validation
+        if not name or not phone or not city or not state or not zip_code:
+            st.error("⚠️ Please complete all required contact information fields.")
+        elif not skills:
+            st.error("⚠️ Please select at least one skill area.")
+        elif years_exp == "Select":
+            st.error("⚠️ Please select your years of experience.")
+        elif vehicle == "No" or ladder == "No" or license_valid == "No":
+            st.error("⚠️ You must meet the minimum vehicle and equipment requirements to qualify.")
+        elif not tools:
+            st.error("⚠️ Please select the tools you own.")
+        elif insurance == "No":
+            st.error("⚠️ General Liability Insurance is required for this position.")
+        elif not service_area:
+            st.error("⚠️ Please enter the counties you are willing to cover.")
         else:
-            data = {"name": name, "phone": phone, "skills": [], "experience": experience}
-            save_applicant(data, "QUALIFIED")
+            # Determine status
+            status = "QUALIFIED"
+            if years_exp == "< 1 year" or len(skills) < 2:
+                status = "REVIEW NEEDED"
             
+            # Save to database
+            data = {
+                "name": name, "phone": phone, "email": email,
+                "city": city, "state": state, "zip": zip_code,
+                "skills": skills, "years_exp": years_exp, "roof_work": roof_work,
+                "vehicle": vehicle, "ladder": ladder, "license": license_valid,
+                "tools": tools, "insurance": insurance,
+                "service_area": service_area, "start_date": start_date
+            }
+            save_applicant(data, status)
+            
+            # Success message
             st.balloons()
             st.markdown(f"""
                 <div class="success-container">
                     <div class="success-title">Application Received</div>
-                    <div class="success-text">Thank you, {name}. A Vergecom LLC representative will contact you at <strong>{phone}</strong> within 2 business days.</div>
+                    <div class="success-text">
+                        Thank you, {name}. Your application for <strong>Starlink Installation Technician</strong> has been submitted.<br><br>
+                        A Vergecom LLC hiring manager will review your qualifications and contact you at <strong>{phone}</strong> within 2-3 business days.<br><br>
+                        Status: <strong>{status}</strong>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
             
-            if st.button("← Return to Job Description", use_container_width=True):
+            if st.button("← Submit Another Application", use_container_width=True):
                 st.session_state.page = 'landing'
                 st.rerun()
     
