@@ -21,10 +21,6 @@ STATUS_COLORS = {
     "NEW": "#3B82F6", "REVIEWED": "#8B5CF6", "CONTACTED": "#F59E0B",
     "INTERVIEW": "#06B6D4", "HIRED": "#22C55E", "REJECTED": "#EF4444",
 }
-STATUS_ICONS = {
-    "NEW": "🔵", "REVIEWED": "🟣", "CONTACTED": "🟡",
-    "INTERVIEW": "🔶", "HIRED": "✅", "REJECTED": "🔴",
-}
 
 # ── Styles ──
 st.markdown("""
@@ -141,7 +137,7 @@ st.markdown("""
     .kpi-sub.green { color: var(--green); }
     .kpi-sub.muted { color: var(--text-3); }
 
-    /* ── Applicant Card ── */
+    /* ── Applicant Card (UPDATED GRID) ── */
     .applicant-card {
         background: var(--bg-white);
         border: 1px solid var(--border);
@@ -149,7 +145,8 @@ st.markdown("""
         padding: 1rem 1.25rem;
         margin-bottom: 0.5rem;
         display: grid;
-        grid-template-columns: 2.2fr 1.2fr 1.8fr 1.2fr 0.8fr;
+        /* Updated columns to include Location */
+        grid-template-columns: 2fr 1fr 1.2fr 1.5fr 1.2fr 0.8fr;
         align-items: center;
         gap: 0.75rem;
         transition: border-color 0.15s, box-shadow 0.15s;
@@ -172,6 +169,15 @@ st.markdown("""
         font-size: 0.82rem;
         color: var(--text-2);
         font-family: 'IBM Plex Mono', monospace;
+    }
+    .ac-location {
+        font-size: 0.8rem;
+        color: var(--text-1);
+        font-weight: 500;
+    }
+    .ac-radius {
+        font-size: 0.7rem;
+        color: var(--text-3);
     }
     .ac-exp {
         font-size: 0.8rem;
@@ -299,10 +305,11 @@ st.markdown("""
         margin-bottom: 0.6rem;
     }
 
-    /* ── Table header row ── */
+    /* ── Table header row (UPDATED) ── */
     .list-header {
         display: grid;
-        grid-template-columns: 2.2fr 1.2fr 1.8fr 1.2fr 0.8fr;
+        /* Must match applicant-card columns */
+        grid-template-columns: 2fr 1fr 1.2fr 1.5fr 1.2fr 0.8fr;
         gap: 0.75rem;
         padding: 0.6rem 1.25rem;
         margin-bottom: 0.25rem;
@@ -517,6 +524,11 @@ if st.session_state.view_id is not None:
     else:
         exp_tags = '<span style="color:var(--text-3);font-size:0.82rem;">None listed</span>'
 
+    # Get New Fields
+    state = record.get("state", "—")
+    counties = record.get("counties", "—")
+    radius = record.get("radius", "—")
+
     st.markdown(f"""
         <div class="info-grid">
             <div class="info-box">
@@ -530,6 +542,19 @@ if st.session_state.view_id is not None:
                     <div class="info-value">{record.get("email") or "—"}</div>
                 </div>
             </div>
+
+            <div class="info-box">
+                <div class="info-box-title">Coverage Area</div>
+                <div class="info-row">
+                    <div class="info-label">State / Radius</div>
+                    <div class="info-value">{state} &nbsp;<span style="color:var(--text-3);font-size:0.75rem;">({radius} mi)</span></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Counties</div>
+                    <div class="info-value" style="font-size:0.8rem;line-height:1.4;">{counties}</div>
+                </div>
+            </div>
+
             <div class="info-box">
                 <div class="info-box-title">Experience</div>
                 <div class="info-row">
@@ -541,11 +566,12 @@ if st.session_state.view_id is not None:
                     <div style="margin-top:0.2rem;">{exp_tags}</div>
                 </div>
             </div>
-        </div>
-        <div class="info-box" style="margin-bottom:1.25rem;">
-            <div class="info-box-title">Equipment</div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                {equip_html(record)}
+
+            <div class="info-box">
+                <div class="info-box-title">Equipment</div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+                    {equip_html(record)}
+                </div>
             </div>
         </div>
     </div>
@@ -652,29 +678,36 @@ st.markdown(f"""
 
 
 # ── Filters ──
-f1, f2, f3, f4 = st.columns([2, 1.5, 1.5, 0.8])
+f1, f2, f3, f4, f5 = st.columns([2, 1, 1, 1, 0.8])
 with f1:
     search = st.text_input("Search", key="search", label_visibility="collapsed",
                            placeholder="Search by name or phone...")
 with f2:
     status_filter = st.multiselect("Status", STATUS_LIST, default=[], key="sf",
-                                   placeholder="All statuses")
+                                   placeholder="Status")
 with f3:
+    # Get unique states from data for filter
+    unique_states = sorted(list(set(d.get("state", "") for d in data if d.get("state"))))
+    state_filter = st.multiselect("State", unique_states, default=[], key="stf",
+                                  placeholder="State")
+with f4:
     exp_filter = st.multiselect("Experience", ["Starlink", "DirecTV", "Dish Network",
                 "HughesNet", "Low Voltage", "TV Mounting", "Cable Installation", "Other"],
-                default=[], key="ef", placeholder="All experience")
-with f4:
+                default=[], key="ef", placeholder="Exp Type")
+with f5:
     if data:
         csv = pd.DataFrame(data).to_csv(index=False).encode("utf-8")
         st.download_button("Export CSV", csv, "applicants.csv", "text/csv", use_container_width=True)
 
-# Apply
+# Apply Filters
 filtered = data
 if search:
     q = search.lower()
     filtered = [d for d in filtered if q in d.get("name", "").lower() or q in d.get("phone", "").lower()]
 if status_filter:
     filtered = [d for d in filtered if d.get("status") in status_filter]
+if state_filter:
+    filtered = [d for d in filtered if d.get("state") in state_filter]
 if exp_filter:
     filtered = [d for d in filtered if any(e in d.get("exp_types", "") for e in exp_filter)]
 
@@ -699,6 +732,7 @@ def render_list(applicants, key_prefix):
     st.markdown("""
     <div class="list-header">
         <div class="list-header-cell">Applicant</div>
+        <div class="list-header-cell">Location</div>
         <div class="list-header-cell">Phone</div>
         <div class="list-header-cell">Experience</div>
         <div class="list-header-cell">Equipment</div>
@@ -709,6 +743,8 @@ def render_list(applicants, key_prefix):
     for i, app in enumerate(applicants):
         s = app.get("status", "NEW")
         exp_types_str = app.get("exp_types", "")
+        state_display = app.get("state", "—")
+        radius_display = f"{app.get('radius')} mi" if app.get("radius") else ""
 
         # Build card HTML
         st.markdown(f"""
@@ -716,6 +752,10 @@ def render_list(applicants, key_prefix):
             <div>
                 <div class="ac-name">{app.get("name", "—")}</div>
                 <div class="ac-email">{app.get("email") or "no email"} &nbsp;{status_badge_html(s)}</div>
+            </div>
+            <div>
+                <div class="ac-location">{state_display}</div>
+                <div class="ac-radius">{radius_display}</div>
             </div>
             <div class="ac-phone">{app.get("phone", "—")}</div>
             <div>
