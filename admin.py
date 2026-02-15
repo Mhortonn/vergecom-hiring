@@ -23,6 +23,7 @@ STATUS_COLORS = {
 }
 
 # ── Styles ──
+# This section makes the "raw html" look like actual cards
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
@@ -31,7 +32,6 @@ st.markdown("""
         --bg: #FAFBFC;
         --bg-white: #FFFFFF;
         --border: #E5E7EB;
-        --border-light: #F0F1F3;
         --accent: #2563EB;
         --text-1: #111827;
         --text-2: #4B5563;
@@ -47,39 +47,55 @@ st.markdown("""
     .stApp { background: var(--bg) !important; font-family: 'DM Sans', sans-serif !important; }
     .block-container { padding: 1.5rem 2rem 4rem !important; max-width: 1200px !important; }
 
-    /* ── CUSTOM CSS ── */
+    /* ─── CUSTOM CARD STYLES (This fixes the boxes) ─── */
     .info-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin: 1.5rem 0;
+        gap: 16px;
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
     }
     .info-box {
-        background-color: #f8f9fa;
+        background-color: #f8f9fa; /* Light Gray Background */
         border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 1.25rem;
+        border-radius: 8px;
+        padding: 16px;
     }
     .info-box-title {
+        font-family: 'IBM Plex Mono', monospace;
         font-weight: 600;
-        color: #4b5563;
-        margin-bottom: 1rem;
+        color: var(--accent);
+        margin-bottom: 12px;
         text-transform: uppercase;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         letter-spacing: 0.05em;
     }
-    .ac-tag {
-        background-color: #e6f0ff;
-        color: #2563eb;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 500;
-        display: inline-block;
-        margin-right: 0.4rem;
-        margin-bottom: 0.4rem;
+    .info-row {
+        margin-bottom: 8px;
     }
-    /* ───────────────────── */
+    .info-label {
+        font-size: 0.75rem;
+        color: var(--text-3);
+        margin-bottom: 2px;
+    }
+    .info-value {
+        font-size: 0.9rem;
+        color: var(--text-1);
+        font-weight: 500;
+        line-height: 1.4;
+    }
+    .ac-tag {
+        background-color: var(--blue-bg);
+        color: var(--blue);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-right: 6px;
+        margin-bottom: 4px;
+    }
+    /* ──────────────────────────────────── */
 
     /* ── Header ── */
     .dash-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
@@ -98,8 +114,8 @@ st.markdown("""
     .kpi-sub { font-size: 0.68rem; font-weight: 500; margin-top: 0.2rem; }
     .kpi-sub.green { color: var(--green); }
 
-    /* ── Applicant Card ── */
-    .applicant-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; display: grid; grid-template-columns: 2fr 1fr 1.2fr 1.5fr 1.2fr 0.8fr; align-items: center; gap: 0.75rem; transition: all 0.15s; cursor: pointer; }
+    /* ── Applicant Card (List View) ── */
+    .applicant-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; display: grid; grid-template-columns: 2fr 1fr 1.2fr 1.5fr 1.2fr 0.8fr; align-items: center; gap: 0.75rem; transition: all 0.15s; }
     .applicant-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 2px 8px rgba(37,99,235,0.06); }
     .ac-name { font-size: 0.9rem; font-weight: 600; color: var(--text-1); }
     .ac-email { font-size: 0.75rem; color: var(--text-3); margin-top: 0.1rem; }
@@ -116,16 +132,11 @@ st.markdown("""
     .ac-date { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-3); }
     .s-badge { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; font-weight: 600; padding: 0.25rem 0.55rem; border-radius: 6px; display: inline-block; }
 
-    /* ── Detail View ── */
+    /* ── Detail View Wrapper ── */
     .detail-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 1rem; }
-    .detail-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-light); }
+    .detail-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid #F0F1F3; }
     .detail-name { font-size: 1.5rem; font-weight: 700; color: var(--text-1); }
-    .detail-applied { font-size: 0.8rem; color: var(--text-3); margin-top: 0.25rem; }
-    
-    /* Info Helpers */
-    .info-row { margin-bottom: 0.5rem; }
-    .info-label { font-size: 0.68rem; color: var(--text-3); margin-bottom: 0.1rem; }
-    .info-value { font-size: 0.88rem; color: var(--text-1); font-weight: 500; }
+    .detail-applied { font-size: 0.78rem; color: var(--text-3); margin-top: 0.25rem; }
 
     /* ── List Header ── */
     .list-header { display: grid; grid-template-columns: 2fr 1fr 1.2fr 1.5fr 1.2fr 0.8fr; gap: 0.75rem; padding: 0.6rem 1.25rem; margin-bottom: 0.25rem; }
@@ -137,15 +148,12 @@ st.markdown("""
     .stTabs [aria-selected="true"] { background: var(--accent) !important; color: white !important; }
     div.stButton > button { font-weight: 600 !important; font-size: 0.82rem !important; border-radius: 8px !important; }
     
-    .back-button { color: #2563eb; font-weight: 500; font-size: 0.9rem; margin-bottom: 1rem; cursor: pointer; display: inline-block; }
-    .back-button:hover { text-decoration: underline; }
-    
     #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;} .stDeployButton {display: none;}
 </style>
 """, unsafe_allow_html=True)
 
 # ── DATA ──
-@st.cache_data(ttl=10)
+@st.cache_data(ttl=5) # Fast refresh
 def load_applicants():
     res = supabase.table("applicants").select("*").order("created_at", desc=True).execute()
     return res.data or []
@@ -162,7 +170,7 @@ def delete_applicant(aid):
 if "view_id" not in st.session_state:
     st.session_state.view_id = None
 
-# Clear Cache Button
+# Sidebar Refresh
 with st.sidebar:
     if st.button("↻ Refresh Data", use_container_width=True):
         st.cache_data.clear()
@@ -178,7 +186,7 @@ st.markdown(f"""
         <div class="dash-sep"></div>
         <div class="dash-label">Hiring Dashboard</div>
     </div>
-    <div class="dash-date">{datetime.now().strftime("%B %d, %Y")} · {len(data)} applicants</div>
+    <div class="dash-date">{datetime.now().strftime("%B %d, %Y")} &middot; {len(data)} applicants</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -197,11 +205,6 @@ def status_badge_html(status):
     bg_key = bg_map.get(status, "blue")
     return f'<span class="s-badge" style="background:var(--{bg_key}-bg);color:var(--{bg_key});">{status}</span>'
 
-def exp_tags_html(exp_types_str):
-    if not exp_types_str or exp_types_str == "None selected": return ""
-    tags = [t.strip() for t in exp_types_str.split(",")]
-    return "".join(f'<span class="ac-tag">{t}</span>' for t in tags[:4])
-
 def equip_html(record):
     items = []
     for key, label in [("vehicle", "Vehicle"), ("ladder", "Ladder"), ("insurance", "Insured")]:
@@ -211,12 +214,14 @@ def equip_html(record):
         items.append(f'<span class="equip-pill {cls}">{sym} {label}</span>')
     return "".join(items)
 
-# ── DETAIL VIEW ──
+# ═══════════════════════════════════
+#  DETAIL VIEW (FIXED)
+# ═══════════════════════════════════
 if st.session_state.view_id is not None:
+    # Get the specific applicant record
     record = next((r for r in data if str(r["id"]) == str(st.session_state.view_id)), None)
 
-    st.markdown('<div class="back-button" onclick="history.back()">← Back to all applicants</div>', unsafe_allow_html=True)
-    if st.button("← Back to all applicants", key="back_btn"):
+    if st.button("← Back to all applicants"):
         st.session_state.view_id = None
         st.rerun()
 
@@ -226,16 +231,26 @@ if st.session_state.view_id is not None:
 
     s = record.get("status", "NEW")
     
-    # Prepare HTML content
+    # --- PREPARE DATA FOR HTML ---
+    # 1. Experience Tags
     exp_types = record.get("exp_types", "")
-    exp_tags = " ".join(f'<span class="ac-tag">{t.strip()}</span>' for t in exp_types.split(",")) if exp_types and exp_types != "None selected" else '<span style="color:var(--text-3);font-size:0.82rem;">None listed</span>'
+    if exp_types and exp_types != "None selected":
+        exp_tags_html = " ".join(f'<span class="ac-tag">{t.strip()}</span>' for t in exp_types.split(","))
+    else:
+        exp_tags_html = '<span style="color:var(--text-3);font-size:0.82rem;">None listed</span>'
     
-    equip_badges = equip_html(record)
+    # 2. Equipment Badges
+    equip_badges_html = equip_html(record)
+
+    # 3. Location Data
     state = record.get("state", "—")
     counties = record.get("counties", "—")
     radius = record.get("radius", "—")
 
-    html_content = f"""
+    # --- HTML CONTENT CONSTRUCTION ---
+    # This big string builds the card exactly how you want it to look
+    # IMPORTANT: The classes used here (info-box, ac-tag) match the CSS at the top of the file.
+    html_card = f"""
     <div class="detail-card">
         <div class="detail-top">
             <div>
@@ -262,7 +277,7 @@ if st.session_state.view_id is not None:
                 <div class="info-box-title">Coverage Area</div>
                 <div class="info-row">
                     <div class="info-label">State / Radius</div>
-                    <div class="info-value">{state} · <span style="color:var(--text-3);font-size:0.75rem;">{radius} mi</span></div>
+                    <div class="info-value">{state} &nbsp;<span style="color:var(--text-3);font-size:0.75rem;">({radius} mi)</span></div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">Counties</div>
@@ -278,35 +293,38 @@ if st.session_state.view_id is not None:
                 </div>
                 <div class="info-row">
                     <div class="info-label">Types</div>
-                    <div style="margin-top:0.2rem;">{exp_tags}</div>
+                    <div style="margin-top:6px;">{exp_tags_html}</div>
                 </div>
             </div>
 
             <div class="info-box">
                 <div class="info-box-title">Equipment</div>
                 <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-                    {equip_badges}
+                    {equip_badges_html}
                 </div>
             </div>
         </div>
     </div>
     """
-    st.markdown(html_content, unsafe_allow_html=True)
 
-    # Photos
+    # --- RENDER THE CARD ---
+    # unsafe_allow_html=True allows the div/span tags above to actually work
+    st.markdown(html_card, unsafe_allow_html=True)
+
+    # --- PHOTOS SECTION ---
     p1 = record.get("photo1_url", "")
     p2 = record.get("photo2_url", "")
     if p1 or p2:
-        st.markdown('<div style="font-size:0.7rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;margin:1rem 0 0.5rem;">Install Photos</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec-title" style="margin-top:1rem;margin-bottom:0.5rem;font-size:0.7rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;">Install Photos</div>', unsafe_allow_html=True)
         pcol1, pcol2 = st.columns(2)
         if p1:
             with pcol1: st.image(p1, use_container_width=True)
         if p2:
             with pcol2: st.image(p2, use_container_width=True)
 
-    # Actions
+    # --- ACTIONS SECTION ---
     st.markdown('<div style="height:20px;"></div>', unsafe_allow_html=True)
-    st.markdown('<div style="font-size:0.7rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;margin-bottom:0.5rem;">Actions</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec-title" style="margin-bottom:0.5rem;font-size:0.7rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;">Actions</div>', unsafe_allow_html=True)
     
     act_col1, act_col2 = st.columns([1, 2])
     with act_col1:
@@ -336,7 +354,10 @@ if st.session_state.view_id is not None:
 
     st.stop()
 
-# ── DASHBOARD (LIST VIEW) ──
+
+# ═══════════════════════════════════
+#  DASHBOARD (LIST VIEW)
+# ═══════════════════════════════════
 
 # KPIs
 total = len(data)
@@ -344,14 +365,21 @@ new_ct = sum(1 for d in data if d.get("status") == "NEW")
 contacted_ct = sum(1 for d in data if d.get("status") == "CONTACTED")
 interview_ct = sum(1 for d in data if d.get("status") == "INTERVIEW")
 hired_ct = sum(1 for d in data if d.get("status") == "HIRED")
-recent_ct = sum(1 for d in data if datetime.fromisoformat(d.get("created_at", "").replace("Z", "+00:00")) > datetime.now() - timedelta(days=7)) if data else 0
+recent_ct = 0
+for d in data:
+    try:
+        dt = datetime.fromisoformat(d.get("created_at", "").replace("Z", "+00:00"))
+        if dt > datetime.now(dt.tzinfo) - timedelta(days=7):
+            recent_ct += 1
+    except:
+        pass
 
 st.markdown(f"""
 <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Total</div><div class="kpi-num">{total}</div><div class="kpi-sub">all time</div></div>
+    <div class="kpi"><div class="kpi-label">Total</div><div class="kpi-num">{total}</div><div class="kpi-sub muted">all time</div></div>
     <div class="kpi"><div class="kpi-label">New</div><div class="kpi-num">{new_ct}</div><div class="kpi-sub green">+{recent_ct} this week</div></div>
-    <div class="kpi"><div class="kpi-label">Contacted</div><div class="kpi-num">{contacted_ct}</div><div class="kpi-sub">pipeline</div></div>
-    <div class="kpi"><div class="kpi-label">Interview</div><div class="kpi-num">{interview_ct}</div><div class="kpi-sub">scheduled</div></div>
+    <div class="kpi"><div class="kpi-label">Contacted</div><div class="kpi-num">{contacted_ct}</div><div class="kpi-sub muted">pipeline</div></div>
+    <div class="kpi"><div class="kpi-label">Interview</div><div class="kpi-num">{interview_ct}</div><div class="kpi-sub muted">scheduled</div></div>
     <div class="kpi"><div class="kpi-label">Hired</div><div class="kpi-num">{hired_ct}</div><div class="kpi-sub green">active</div></div>
 </div>
 """, unsafe_allow_html=True)
@@ -371,6 +399,7 @@ filtered = data
 if search: filtered = [d for d in filtered if search.lower() in d.get("name", "").lower()]
 if status_filter: filtered = [d for d in filtered if d.get("status") in status_filter]
 if state_filter: filtered = [d for d in filtered if d.get("state") in state_filter]
+if exp_filter: filtered = [d for d in filtered if any(e in d.get("exp_types", "") for e in exp_filter)]
 
 # Tabs
 tabs = st.tabs([f"All ({len(filtered)})", "New", "Contacted", "Interview", "Hired", "Rejected"])
@@ -397,34 +426,31 @@ for i, tab in enumerate(tabs):
             for app in subset:
                 rad = f"{app.get('radius')} mi" if app.get("radius") else ""
                 
-                # Create a unique key for this applicant's button
-                btn_key = f"view_{app['id']}"
-                
-                # Use columns to place the card and button together
-                col1, col2 = st.columns([5, 1])
-                
-                with col1:
-                    st.markdown(f"""
-                    <div class="applicant-card">
-                        <div>
-                            <div class="ac-name">{app.get("name", "—")}</div>
-                            <div class="ac-email">{app.get("email") or ""} {status_badge_html(app.get("status", "NEW"))}</div>
-                        </div>
-                        <div>
-                            <div class="ac-location">{app.get("state", "—")}</div>
-                            <div class="ac-radius">{rad}</div>
-                        </div>
-                        <div class="ac-phone">{app.get("phone", "—")}</div>
-                        <div>
-                            <div class="ac-exp">{app.get("experience", "—")}</div>
-                            <div style="margin-top:0.2rem;">{exp_tags_html(app.get("exp_types", ""))}</div>
-                        </div>
-                        <div style="display:flex;">{equip_html(app)}</div>
-                        <div class="ac-date">{fmt_date_short(app.get("created_at", ""))}</div>
+                # Render list items as simple strings inside Python to avoid complexity
+                exp_list_tags = ""
+                if app.get("exp_types") and app.get("exp_types") != "None selected":
+                    tags = [t.strip() for t in app.get("exp_types").split(",")]
+                    exp_list_tags = "".join(f'<span class="ac-tag">{t}</span>' for t in tags[:3]) # Limit to 3 tags in list view
+
+                st.markdown(f"""
+                <div class="applicant-card">
+                    <div>
+                        <div class="ac-name">{app.get("name", "—")}</div>
+                        <div class="ac-email">{app.get("email") or ""} &nbsp;{status_badge_html(app.get("status", "NEW"))}</div>
                     </div>
-                    """, unsafe_allow_html=True)
-                
-                with col2:
-                    if st.button("View", key=btn_key, use_container_width=True):
-                        st.session_state.view_id = app["id"]
-                        st.rerun()
+                    <div>
+                        <div class="ac-location">{app.get("state", "—")}</div>
+                        <div class="ac-radius">{rad}</div>
+                    </div>
+                    <div class="ac-phone">{app.get("phone", "—")}</div>
+                    <div>
+                        <div class="ac-exp">{app.get("experience", "—")}</div>
+                        <div style="margin-top:0.2rem;">{exp_list_tags}</div>
+                    </div>
+                    <div style="display:flex;">{equip_html(app)}</div>
+                    <div class="ac-date">{fmt_date_short(app.get("created_at", ""))}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button(f"View Details", key=f"btn_{app['id']}", use_container_width=True):
+                    st.session_state.view_id = app["id"]
+                    st.rerun()
