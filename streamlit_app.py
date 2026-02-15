@@ -50,25 +50,22 @@ def add_applicant(data, status):
 init_db()
 
 # ==========================================
-# THE APP (CENTERED & CARD STYLE)
+# THE APP
 # ==========================================
 
-# 1. CREATE CENTER COLUMN
-# We use columns [1, 2, 1] to make the middle column (2) twice as wide as the sides
-# This effectively centers your form on the screen.
+# Center column layout
 left_spacer, main_content, right_spacer = st.columns([1, 2, 1])
 
 with main_content:
     
-    # --- HEADER ---
-    st.image("https://cdn-icons-png.flaticon.com/512/6927/6927640.png", width=70)
+    # --- HEADER (No Image) ---
     st.title("Starlink Installation Technician")
     st.markdown("**Apply to become a Certified Field Technician**")
     st.info("📋 **Instructions:** Please complete all sections below.")
 
     with st.form("application_form"):
         
-        # --- SECTION 1: CONTACT (CARD) ---
+        # --- SECTION 1: CONTACT ---
         with st.container(border=True):
             st.markdown("### 1. Contact Information")
             
@@ -84,9 +81,9 @@ with main_content:
             state = c4.text_input("State")
             zip_code = c5.text_input("ZIP")
 
-        st.write("") # Spacer
+        st.write("") 
 
-        # --- SECTION 2: EXPERIENCE (CARD) ---
+        # --- SECTION 2: EXPERIENCE ---
         with st.container(border=True):
             st.markdown("### 2. Experience & Qualifications")
             
@@ -100,7 +97,6 @@ with main_content:
             roof_work = c_exp2.radio("Experience working on roofs? *", ["Yes, comfortable", "Yes, limited", "No, but willing", "No"], horizontal=True)
             
             st.markdown("**Comfortable with tasks:**")
-            # We use checkboxes inside columns to make them look like cards too
             t1, t2 = st.columns(2)
             task_drill = t1.checkbox("Drilling through walls/roofs")
             task_attic = t2.checkbox("Running cables in attics")
@@ -108,9 +104,9 @@ with main_content:
             task_height = t3.checkbox("Working at heights (20ft+)")
             task_net = t4.checkbox("Troubleshooting network issues")
 
-        st.write("") # Spacer
+        st.write("") 
 
-        # --- SECTION 3: VEHICLE & TOOLS (CARD) ---
+        # --- SECTION 3: VEHICLE & TOOLS ---
         with st.container(border=True):
             st.markdown("### 3. Vehicle & Equipment")
             
@@ -123,17 +119,17 @@ with main_content:
             st.markdown("**Tools owned:**")
             tools = st.multiselect("Select all that apply:", ["Power drill", "Crimper tools", "Cable tester", "Fish tape", "Stud finder", "Signal meter"])
 
-        st.write("") # Spacer
+        st.write("") 
 
-        # --- SECTION 4: INSURANCE (CARD) ---
+        # --- SECTION 4: INSURANCE ---
         with st.container(border=True):
             st.markdown("### 4. Insurance")
             insurance = st.radio("Do you have General Liability Insurance? *", 
                 ["Yes, I currently have insurance", "No, but I can obtain within 1 week", "No, but I can obtain within 2 weeks", "No"])
 
-        st.write("") # Spacer
+        st.write("") 
 
-        # --- SECTION 5: AVAILABILITY (CARD) ---
+        # --- SECTION 5: AVAILABILITY ---
         with st.container(border=True):
             st.markdown("### 5. Availability")
             
@@ -143,15 +139,15 @@ with main_content:
             
             days_avail = st.multiselect("Days Available", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
 
-        st.write("") # Spacer
+        st.write("") 
 
-        # --- SECTION 6: SERVICE AREA (CARD) ---
+        # --- SECTION 6: SERVICE AREA ---
         with st.container(border=True):
             st.markdown("### 6. Service Area")
             counties = st.text_area("Which counties are you willing to work in? (Separate by comma) *", placeholder="Example: Orange County, Lake County, Seminole County")
             radius = st.select_slider("Max Travel Radius", options=["15 miles", "30 miles", "50 miles", "75 miles", "100+ miles"])
 
-        st.write("") # Spacer
+        st.write("") 
         
         # --- SUBMIT ---
         submitted = st.form_submit_button("Submit Application", type="primary", use_container_width=True)
