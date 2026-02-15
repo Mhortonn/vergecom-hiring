@@ -117,9 +117,13 @@ def upload_photo_to_supabase(file, applicant_name):
         ts = datetime.now().strftime("%Y%m%d%H%M%S")
         ext = file.name.split(".")[-1].lower()
         path = f"installs/{safe_name}_{ts}_{file.name}"
-        file_bytes = file.getbuffer()
-        content_type = "image/jpeg" if ext == "jpg" else f"image/{ext}"
-        supabase.storage.from_("applicant-photos").upload(path, file_bytes, {"content-type": content_type})
+        file_bytes = bytes(file.getbuffer())  # convert memoryview to bytes
+        content_type = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext}"
+        supabase.storage.from_("applicant-photos").upload(
+            path,
+            file_bytes,
+            file_options={"content-type": content_type}
+        )
         return supabase.storage.from_("applicant-photos").get_public_url(path)
     except Exception as e:
         st.warning(f"Photo upload failed: {e}")
@@ -127,19 +131,24 @@ def upload_photo_to_supabase(file, applicant_name):
 
 
 def save_applicant(data):
-    supabase.table("applicants").insert({
-        "name": data["name"],
-        "phone": data["phone"],
-        "email": data["email"],
-        "experience": data["experience"],
-        "exp_types": data["exp_types"],
-        "vehicle": data["vehicle"],
-        "ladder": data["ladder"],
-        "insurance": data["insurance"],
-        "photo1_url": data.get("photo1_url", ""),
-        "photo2_url": data.get("photo2_url", ""),
-        "status": "NEW",
-    }).execute()
+    try:
+        supabase.table("applicants").insert({
+            "name": data["name"],
+            "phone": data["phone"],
+            "email": data["email"],
+            "experience": data["experience"],
+            "exp_types": data["exp_types"],
+            "vehicle": data["vehicle"],
+            "ladder": data["ladder"],
+            "insurance": data["insurance"],
+            "photo1_url": data.get("photo1_url", ""),
+            "photo2_url": data.get("photo2_url", ""),
+            "status": "NEW",
+        }).execute()
+        return True
+    except Exception as e:
+        st.error(f"Failed to save application: {e}")
+        return False
 
 
 # --- SESSION STATE ---
@@ -304,7 +313,7 @@ elif st.session_state.page == "apply":
                 photo1_url = upload_photo_to_supabase(photo1, name) if photo1 else ""
                 photo2_url = upload_photo_to_supabase(photo2, name) if photo2 else ""
 
-                save_applicant({
+                result = save_applicant({
                     "name": name.strip(), "phone": phone.strip(), "email": email.strip(),
                     "experience": experience,
                     "exp_types": ", ".join(exp_list) if exp_list else "None selected",
@@ -313,8 +322,9 @@ elif st.session_state.page == "apply":
                     "insurance": "Yes" if insurance else "No",
                     "photo1_url": photo1_url, "photo2_url": photo2_url,
                 })
-                st.session_state.page = "success"
-                st.rerun()
+                if result:
+                    st.session_state.page = "success"
+                    st.rerun()
 
 
 # ═══════════════ SUCCESS ═══════════════
