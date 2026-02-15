@@ -200,7 +200,7 @@ def init_db():
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS applicants
                  (id INTEGER PRIMARY KEY, name TEXT, phone TEXT, email TEXT,
-                  experience TEXT, vehicle TEXT, ladder TEXT, insurance TEXT,
+                  experience TEXT, vehicle TEXT, ladder TEXT, tools TEXT, insurance TEXT,
                   status TEXT, timestamp TEXT)''')
     conn.commit()
     conn.close()
@@ -209,10 +209,10 @@ def save_applicant(data):
     conn = sqlite3.connect('applications.db')
     c = conn.cursor()
     c.execute("""INSERT INTO applicants 
-                 (name, phone, email, experience, vehicle, ladder, insurance, status, timestamp) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                 (name, phone, email, experience, vehicle, ladder, tools, insurance, status, timestamp) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (data['name'], data['phone'], data['email'], data['experience'], 
-         data['vehicle'], data['ladder'], data['insurance'], 'NEW', datetime.now()))
+         data['vehicle'], data['ladder'], data['tools'], data['insurance'], 'NEW', datetime.now()))
     conn.commit()
     conn.close()
 
@@ -291,50 +291,60 @@ elif st.session_state.page == 'apply':
     with st.container():
         st.markdown('<div class="main-card">', unsafe_allow_html=True)
         
-        if st.button("← BACK", use_container_width=False):
-            st.session_state.page = 'home'
-            st.rerun()
-        
-        st.markdown("<h2>Application Form</h2>", unsafe_allow_html=True)
+        col_back, col_title = st.columns([1, 5])
+        with col_back:
+            if st.button("←", help="Go back"):
+                st.session_state.page = 'home'
+                st.rerun()
+        with col_title:
+            st.markdown("<h2 style='margin-top: 0;'>Application</h2>", unsafe_allow_html=True)
         
         with st.form("application_form"):
-            # Basic Info
-            st.markdown("**Basic Information**")
-            name = st.text_input("Full name *")
+            st.markdown("#### Tell us about yourself")
+            
+            name = st.text_input("Full name *", placeholder="John Smith")
+            
             col1, col2 = st.columns(2)
             with col1:
-                phone = st.text_input("Phone *")
+                phone = st.text_input("Phone *", placeholder="(555) 555-5555")
             with col2:
-                email = st.text_input("Email")
+                email = st.text_input("Email", placeholder="john@email.com")
             
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("**Experience**")
+            st.markdown("---")
+            st.markdown("#### Work experience")
+            
             experience = st.selectbox(
-                "Years of installation experience",
-                ["Less than 1 year", "1-2 years", "3-5 years", "5+ years", "10+ years"]
+                "How long have you been doing installations?",
+                ["Just starting out", "Less than 1 year", "1-2 years", "3-5 years", "5+ years", "10+ years"]
             )
             
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("**Equipment Checklist**")
+            st.markdown("---")
+            st.markdown("#### Gear check - what do you have?")
             
             col1, col2 = st.columns(2)
             with col1:
-                vehicle = st.checkbox("I have a reliable truck/van/SUV")
-                ladder = st.checkbox("I have a 24ft+ fiberglass ladder")
+                vehicle = st.checkbox("Reliable truck/van/SUV")
+                ladder = st.checkbox("24ft+ fiberglass ladder")
             with col2:
-                tools = st.checkbox("I have basic installation tools")
-                insurance = st.checkbox("I have liability insurance")
+                tools = st.checkbox("Basic tools and drill")
+                insurance = st.checkbox("Liability insurance")
             
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("---")
             
             # Submit
             submitted = st.form_submit_button("SUBMIT APPLICATION", use_container_width=True)
             
             if submitted:
-                if not name or not phone:
-                    st.error("Name and phone are required")
+                missing = []
+                if not name:
+                    missing.append("name")
+                if not phone:
+                    missing.append("phone")
+                
+                if missing:
+                    st.error(f"Please fill in: {', '.join(missing)}")
                 elif not vehicle or not ladder:
-                    st.error("You must have a vehicle and ladder to apply")
+                    st.warning("To do this job you'll need a vehicle and a ladder. Let's talk if you're planning to get them soon - reach out to us directly.")
                 else:
                     save_applicant({
                         'name': name,
@@ -343,6 +353,7 @@ elif st.session_state.page == 'apply':
                         'experience': experience,
                         'vehicle': 'Yes' if vehicle else 'No',
                         'ladder': 'Yes' if ladder else 'No',
+                        'tools': 'Yes' if tools else 'No',
                         'insurance': 'Yes' if insurance else 'No'
                     })
                     st.session_state.page = 'success'
@@ -356,15 +367,15 @@ elif st.session_state.page == 'success':
         st.markdown('<div class="main-card success-message">', unsafe_allow_html=True)
         
         st.markdown("✅")
-        st.markdown("<h3>Application<br>Received</h3>", unsafe_allow_html=True)
+        st.markdown("<h3>Got it!</h3>", unsafe_allow_html=True)
         st.markdown("""
         <p style="color: #AAAAAA; margin: 1.5rem 0;">
-            Thanks for applying. Our team will review your information<br>
-            and contact you within 2 business days.
+            We'll look over your info and give you a call in a day or two.<br>
+            Talk soon.
         </p>
         """, unsafe_allow_html=True)
         
-        if st.button("RETURN HOME", use_container_width=True):
+        if st.button("BACK TO HOME", use_container_width=True):
             st.session_state.page = 'home'
             st.rerun()
         
@@ -373,6 +384,6 @@ elif st.session_state.page == 'success':
 # --- FOOTER ---
 st.markdown("""
 <div class="footer-note">
-    Vergecom LLC • Independent Contractor Opportunities
+    Vergecom LLC • 1099 opportunities
 </div>
 """, unsafe_allow_html=True)
