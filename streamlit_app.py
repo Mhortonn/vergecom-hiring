@@ -5,309 +5,195 @@ from datetime import datetime
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Vergecom Careers", page_icon="📡", layout="centered")
 
-# --- CUSTOM CSS (CORPORATE LOOK) ---
+# --- CUSTOM CSS (STRICT CORPORATE BLACK & WHITE) ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     
-    /* Clean white background */
+    /* 1. GLOBAL RESET */
     .stApp {
-        background-color: #F8FAFC;
+        background-color: #FFFFFF; /* Pure White Background */
         font-family: 'Inter', sans-serif;
+        color: #000000;
     }
-    
-    /* Main content container */
+
+    /* 2. MAIN CONTAINER BORDER */
     .main-container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    /* White card for all content */
-    .corporate-card {
+        border: 2px solid #000000;
+        padding: 40px;
+        margin-top: 20px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
         background-color: #FFFFFF;
-        border-radius: 20px;
-        padding: 50px 60px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 6px 12px rgba(0, 0, 0, 0.05);
-        border: 1px solid #EAECF0;
-        margin: 20px 0;
     }
-    
-    /* Company header */
-    .company-header {
-        text-align: center;
-        margin-bottom: 30px;
-        border-bottom: 2px solid #000000;
-        padding-bottom: 30px;
-    }
-    
-    .company-name {
-        color: #000000;
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: 2px;
+
+    /* 3. TYPOGRAPHY */
+    h1, h2, h3, h4, h5, h6 {
+        color: #000000 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 700 !important;
         text-transform: uppercase;
-        margin-bottom: 15px;
+        letter-spacing: -0.5px;
     }
     
-    /* New styles for the white space */
-    .starlink-title {
-        color: #000000;
-        font-size: 48px;
-        font-weight: 700;
-        margin: 5px 0 5px 0;
-        line-height: 1.2;
-        text-align: center;
-        letter-spacing: -0.02em;
+    p, li, label, .stMarkdown, .stText, .stSelectbox, .stMultiselect {
+        color: #000000 !important;
+        font-size: 15px !important;
+        line-height: 1.5 !important;
     }
-    
-    .vergecom-llc {
-        color: #000000;
-        font-size: 24px;
-        font-weight: 400;
-        margin-top: 5px;
-        opacity: 0.8;
-        text-align: center;
-        letter-spacing: 1px;
-    }
-    
-    .job-title {
-        color: #000000;
-        font-size: 42px;
-        font-weight: 700;
-        margin: 10px 0 5px 0;
-        line-height: 1.2;
-    }
-    
-    .job-type {
-        color: #000000;
-        font-size: 18px;
-        font-weight: 400;
-        margin-top: 5px;
-        opacity: 0.8;
-    }
-    
-    /* Section styles - ALL BLACK */
-    .section-title {
-        color: #000000;
-        font-size: 20px;
-        font-weight: 700;
-        margin: 35px 0 20px 0;
-        letter-spacing: -0.02em;
-        border-bottom: 1px solid #000000;
-        padding-bottom: 8px;
-    }
-    
-    .section-title:first-of-type {
-        margin-top: 10px;
-    }
-    
-    /* Text styles - ALL BLACK */
-    .body-text {
-        color: #000000;
-        font-size: 16px;
-        line-height: 1.7;
-        margin-bottom: 20px;
-        font-weight: 400;
-    }
-    
-    .body-text strong {
-        color: #000000;
-        font-weight: 700;
-    }
-    
-    /* List styles - ALL BLACK */
-    .corporate-list {
-        margin: 15px 0 25px 0;
-        padding-left: 25px;
-        color: #000000;
-        font-size: 16px;
-        line-height: 1.8;
-    }
-    
-    .corporate-list li {
-        margin-bottom: 12px;
-        color: #000000;
-    }
-    
-    .corporate-list li strong {
-        color: #000000;
-        font-weight: 700;
-    }
-    
-    /* Button styles */
+
+    /* 4. BUTTONS (BLACK & WHITE) */
     .stButton button {
         background-color: #000000 !important;
         color: #FFFFFF !important;
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        padding: 20px 40px !important;
-        border-radius: 12px !important;
+        border-radius: 0px !important; /* Square corners */
         border: 2px solid #000000 !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        padding: 14px 28px !important;
+        transition: all 0.2s;
         width: 100%;
-        transition: all 0.2s ease;
-        letter-spacing: 0.3px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin: 20px 0 0 0 !important;
+        letter-spacing: 0.5px;
     }
-    
     .stButton button:hover {
         background-color: #FFFFFF !important;
         color: #000000 !important;
         border: 2px solid #000000 !important;
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-        transform: translateY(-2px);
     }
-    
-    /* Hide Streamlit elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Form styles */
-    .form-card {
-        background-color: #FFFFFF;
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #EAECF0;
-    }
-    
-    .form-title {
-        color: #000000;
-        font-size: 28px;
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    
-    .form-subtitle {
-        color: #000000;
-        font-size: 16px;
-        text-align: center;
-        margin-bottom: 40px;
-        opacity: 0.8;
-    }
-    
-    /* Input fields */
-    .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
-        background-color: #FFFFFF;
-        border: 1.5px solid #000000;
-        border-radius: 10px;
-        padding: 12px;
-        color: #000000;
-        font-size: 15px;
-    }
-    
-    .stTextInput input:focus, .stTextArea textarea:focus {
-        border-color: #000000 !important;
-        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    /* Labels */
-    .stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label {
+
+    /* 5. INPUT FIELDS */
+    .stTextInput input, .stSelectbox div, .stTextArea textarea, .stMultiselect div {
+        background-color: #FFFFFF !important;
         color: #000000 !important;
-        font-weight: 500 !important;
+        border: 1px solid #000000 !important;
+        border-radius: 0px !important; /* Square inputs */
+        padding: 10px !important;
     }
     
-    /* Radio and checkbox */
+    .stTextInput label, .stSelectbox label, .stTextArea label, .stMultiselect label, .stRadio label {
+        color: #000000 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+    }
+    
+    /* 6. RADIO BUTTONS */
     .stRadio div[role="radiogroup"] {
-        background-color: #F8FAFC;
-        padding: 12px;
-        border-radius: 10px;
         border: 1px solid #000000;
+        padding: 12px;
+        background-color: #FFFFFF;
     }
     
     .stRadio div[role="radiogroup"] label {
         color: #000000 !important;
     }
-    
+
+    /* 7. DIVIDERS */
     hr {
+        border-top: 2px solid #000000 !important;
         margin: 30px 0;
-        border-color: #000000;
-        opacity: 0.2;
+    }
+
+    /* 8. HEADER STYLES */
+    .corporate-header {
+        text-align: center;
+        border-bottom: 2px solid black;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
     }
     
-    /* Success message */
-    .success-container {
-        background-color: #000000;
-        border-radius: 20px;
-        padding: 60px;
-        text-align: center;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #000000;
+    .corporate-header h1 {
+        margin: 0;
+        font-size: 36px;
+    }
+    
+    .corporate-header p {
+        margin: 5px 0 0 0;
+        font-weight: 600;
+    }
+    
+    /* 9. INFO GRID */
+    .info-grid {
+        display: flex;
+        justify-content: space-between;
         margin: 20px 0;
     }
     
+    .info-box {
+        flex: 1;
+        border: 1px solid #000000;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .info-box strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    /* 10. QUALIFYING BOX */
+    .qualifying-box {
+        border: 2px solid #000000;
+        padding: 15px;
+        margin: 20px 0;
+        background-color: #FFFFFF;
+    }
+    
+    .qualifying-box p {
+        margin: 0;
+        font-weight: 700;
+    }
+    
+    /* 11. SUCCESS MESSAGE */
+    .success-container {
+        border: 2px solid #000000;
+        padding: 40px;
+        text-align: center;
+        margin: 20px 0;
+        background-color: #FFFFFF;
+    }
+    
     .success-title {
-        color: #FFFFFF;
-        font-size: 36px;
+        font-size: 28px;
         font-weight: 700;
         margin-bottom: 20px;
     }
     
     .success-text {
-        color: #FFFFFF;
-        font-size: 18px;
+        font-size: 16px;
         line-height: 1.6;
-        opacity: 0.9;
     }
     
-    .success-text strong {
-        color: #FFFFFF;
-        font-weight: 700;
-    }
-    
-    /* Subheaders */
-    .stSubheader {
-        color: #000000 !important;
-        font-weight: 700 !important;
-        border-bottom: 1px solid #000000;
-        padding-bottom: 8px;
-        margin-top: 30px !important;
-    }
-    
-    /* Back button */
-    .stButton button[key="Back"] {
+    /* 12. BACK BUTTON */
+    .back-button {
+        border: 1px solid #000000 !important;
         background-color: transparent !important;
         color: #000000 !important;
-        border: 1px solid #000000 !important;
         padding: 8px 16px !important;
         font-size: 14px !important;
     }
     
-    .stButton button[key="Back"]:hover {
+    .back-button:hover {
         background-color: #000000 !important;
         color: #FFFFFF !important;
     }
+
+    /* 13. HIDE STREAMLIT BRANDING */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     
-    /* White space styling */
-    .white-space-content {
-        text-align: center;
-        padding: 20px 0 30px 0;
-        margin-bottom: 20px;
-    }
-    
-    /* Qualifying questions highlight */
-    .qualifying-box {
-        background-color: #F8FAFC;
-        border-left: 4px solid #000000;
-        padding: 15px;
-        margin: 20px 0;
-        border-radius: 0 8px 8px 0;
-    }
-    
-    .qualifying-box p {
-        margin: 0;
-        color: #000000;
-        font-weight: 500;
+    /* 14. SECTION TITLES */
+    .section-title {
+        font-weight: 700;
+        font-size: 20px;
+        margin: 30px 0 20px 0;
+        border-bottom: 1px solid #000000;
+        padding-bottom: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
-
-# --- SESSION STATE ---
-if 'page' not in st.session_state:
-    st.session_state.page = 'landing'
 
 # --- DATABASE FUNCTIONS ---
 def init_db():
@@ -341,134 +227,134 @@ def save_applicant(data, status):
 
 init_db()
 
+# --- SESSION STATE ---
+if 'page' not in st.session_state:
+    st.session_state.page = 'landing'
+
 # ==========================================
-# PAGE 1: LANDING PAGE
+# PAGE 1: JOB DESCRIPTION (CORPORATE)
 # ==========================================
 if st.session_state.page == 'landing':
     
-    # Main white container
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
-    st.markdown('<div class="corporate-card">', unsafe_allow_html=True)
     
-    # White space content with Starlink Installation Technician and Vergecom LLC
+    # HEADER
     st.markdown("""
-        <div class="white-space-content">
-            <div class="starlink-title">STARLINK INSTALLATION TECHNICIAN</div>
-            <div class="vergecom-llc">VERGECOM LLC</div>
+    <div class="corporate-header">
+        <h1>STARLINK INSTALLATION TECHNICIAN</h1>
+        <p>VERGECOM LLC | INDEPENDENT CONTRACTOR (1099)</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # INFO GRID
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("""
+        <div class="info-box">
+            <strong>COMPENSATION</strong>
+            $1,200 - $1,800 / WEEK
         </div>
-    """, unsafe_allow_html=True)
-    
-    # Company header
-    st.markdown("""
-        <div class="company-header">
-            <div class="company-name">FIELD SERVICE TECHNICIAN</div>
-            <div class="job-type">Independent Contractor • 1099 Position</div>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+        <div class="info-box">
+            <strong>LOCATION</strong>
+            GREATER METRO AREA
         </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
-    # About the Role
-    st.markdown('<div class="section-title">About the Role</div>', unsafe_allow_html=True)
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    # DESCRIPTION
     st.markdown("""
-        <p class="body-text">
-            Vergecom is seeking professional, self-motivated Field Technicians to join our network of installation experts. 
-            In this <strong>1099 Independent Contractor</strong> role, you'll install and service Starlink satellite systems for 
-            residential and commercial customers. This position offers flexibility, autonomy, and uncapped earning potential 
-            through our performance-based compensation model.
-        </p>
-    """, unsafe_allow_html=True)
+    <div class="section-title">POSITION SUMMARY</div>
+    <p style="margin-bottom: 25px;">
+        Vergecom is seeking professional Field Technicians to install and service Starlink satellite systems for 
+        residential and commercial customers. This is a high-volume, piece-rate position requiring reliable 
+        transportation and professional tools. This <strong>1099 Independent Contractor</strong> role offers 
+        flexibility and uncapped earning potential.
+    </p>
     
-    # Key Responsibilities
-    st.markdown('<div class="section-title">Key Responsibilities</div>', unsafe_allow_html=True)
-    st.markdown("""
-        <ul class="corporate-list">
-            <li><strong>Site Assessment:</strong> Conduct thorough site surveys to determine optimal Starlink equipment placement</li>
-            <li><strong>Installation:</strong> Mount Starlink hardware on roofs, siding, and poles using industry-standard techniques</li>
-            <li><strong>Cabling:</strong> Route and terminate cables professionally, ensuring clean and secure installations</li>
-            <li><strong>Configuration:</strong> Set up Starlink network equipment and verify system connectivity and performance</li>
-            <li><strong>Troubleshooting:</strong> Diagnose and resolve signal issues and connectivity problems on-site</li>
-            <li><strong>Documentation:</strong> Complete job reports and maintain accurate equipment inventory</li>
-        </ul>
-    """, unsafe_allow_html=True)
+    <div class="section-title">KEY RESPONSIBILITIES</div>
+    <ul style="margin-bottom: 25px;">
+        <li>Complete daily route of 3-6 residential installations.</li>
+        <li>Mount Starlink hardware to roofs, siding, or poles using professional techniques.</li>
+        <li>Run and terminate RG6/Cat5 cabling cleanly and securely.</li>
+        <li>Configure customer routers and verify system connectivity.</li>
+        <li>Conduct site surveys to determine optimal equipment placement.</li>
+        <li>Troubleshoot and resolve signal issues on-site.</li>
+    </ul>
     
-    # Requirements
-    st.markdown('<div class="section-title">Requirements</div>', unsafe_allow_html=True)
-    st.markdown("""
-        <ul class="corporate-list">
-            <li><strong>Vehicle:</strong> Reliable truck, van, or SUV capable of transporting installation equipment</li>
-            <li><strong>Ladder:</strong> 28ft fiberglass extension ladder in good condition</li>
-            <li><strong>Tools:</strong> Standard installation tools including power drill, impact driver, and hand tools</li>
-            <li><strong>Technology:</strong> Smartphone with data plan for dispatch and communication apps</li>
-            <li><strong>Credentials:</strong> Valid driver's license and general liability insurance</li>
-            <li><strong>Physical:</strong> Comfortable working at heights, on roofs, and in confined spaces</li>
-        </ul>
-    """, unsafe_allow_html=True)
+    <div class="section-title">MINIMUM REQUIREMENTS</div>
+    <ul style="margin-bottom: 25px;">
+        <li><strong>Vehicle:</strong> Truck, Van, or SUV (Must carry 28ft ladder).</li>
+        <li><strong>Ladder:</strong> 28ft fiberglass extension ladder in good condition.</li>
+        <li><strong>Tools:</strong> Power Drill, Impact Driver, Hand Tools, Crimper, Cable Tester.</li>
+        <li><strong>License:</strong> Valid Driver's License & Auto Insurance.</li>
+        <li><strong>Insurance:</strong> General Liability Policy (Required).</li>
+        <li><strong>Physical:</strong> Comfortable working at heights, on roofs, and in confined spaces.</li>
+    </ul>
     
-    # Schedule
-    st.markdown('<div class="section-title">Schedule & Territory</div>', unsafe_allow_html=True)
-    st.markdown("""
-        <p class="body-text">
-            Work is dispatched within the Greater Metropolitan Area. Technicians complete an average of 3-6 Starlink installations per day.
-            You control your schedule—choose the days and hours that work best for you. Weekend availability can increase earnings.
-        </p>
+    <div class="section-title">SCHEDULE & TERRITORY</div>
+    <p>
+        Work is dispatched within the Greater Metropolitan Area. You control your schedule—choose the days 
+        and hours that work best for you. Weekend availability can increase earnings.
+    </p>
     """, unsafe_allow_html=True)
+
+    st.write("")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    # Button
-    if st.button("BECOME AN INSTALLER", use_container_width=True):
+    if st.button("APPLY NOW", use_container_width=True):
         st.session_state.page = 'application'
         st.rerun()
     
-    st.markdown('</div>', unsafe_allow_html=True)  # Close corporate-card
-    st.markdown('</div>', unsafe_allow_html=True)  # Close main-container
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# PAGE 2: APPLICATION FORM (Hiring Manager Script)
+# PAGE 2: APPLICATION FORM (CORPORATE)
 # ==========================================
 elif st.session_state.page == 'application':
     
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
-    st.markdown('<div class="form-card">', unsafe_allow_html=True)
-    
-    # Back button
+
     col1, col2 = st.columns([1, 5])
     with col1:
-        if st.button("← Back", key="Back", use_container_width=True):
+        if st.button("← RETURN", key="back", use_container_width=True):
             st.session_state.page = 'landing'
             st.rerun()
     
-    # Form header
     st.markdown("""
-        <div class="form-title">Starlink Installation Technician Application</div>
-        <div class="form-subtitle">Independent Contractor (1099) • Vergecom LLC</div>
+    <h2 style="margin-top: 20px; border-bottom: 2px solid black; padding-bottom: 10px;">CANDIDATE APPLICATION</h2>
+    <p style="margin-bottom: 30px;">Starlink Installation Technician • Independent Contractor (1099)</p>
     """, unsafe_allow_html=True)
-    
-    # 1. CONTACT INFORMATION
-    st.subheader("📋 Contact Information")
-    
-    name = st.text_input("Full Name *")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        phone = st.text_input("Phone Number *")
-    with col2:
-        email = st.text_input("Email Address")
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        city = st.text_input("City *")
-    with col2:
-        state = st.text_input("State *")
-    with col3:
-        zip_code = st.text_input("Zip Code *")
-    
-    st.markdown("<hr>", unsafe_allow_html=True)
-    
-    # 2. PROFESSIONAL EXPERIENCE
-    st.subheader("🛠️ Professional Experience")
-    
-    # Multi-select Skills
-    skills = st.multiselect(
-        "Select your areas of experience *",
-        [
+
+    # FORM
+    with st.form(key="application_form"):
+        # 1. CONTACT INFORMATION
+        st.markdown("### 1. CONTACT INFORMATION")
+        name = st.text_input("FULL LEGAL NAME *")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            phone = st.text_input("PHONE NUMBER *")
+        with col2:
+            email = st.text_input("EMAIL ADDRESS")
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            city = st.text_input("CITY *")
+        with col2:
+            state = st.text_input("STATE *")
+        with col3:
+            zip_code = st.text_input("ZIP CODE *")
+        
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
+        # 2. PROFESSIONAL EXPERIENCE
+        st.markdown("### 2. PROFESSIONAL EXPERIENCE")
+        
+        SKILLS = [
             "Satellite systems (DirecTV/Dish)",
             "Starlink installation",
             "TV mounting",
@@ -476,156 +362,100 @@ elif st.session_state.page == 'application':
             "Low voltage wiring (Cat5/Coax)",
             "Smart home systems"
         ]
-    )
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        # Years of Experience
-        years_exp = st.selectbox(
-            "Years of Experience *",
-            ["Select", "< 1 year", "1-2 years", "3-5 years", "5+ years"]
-        )
-    
-    with col2:
-        # Roof Work Comfort Level
-        roof_work = st.radio(
-            "Are you comfortable working on roofs? *",
-            ["Yes", "Limited", "No"],
-            horizontal=True
-        )
-    
-    st.markdown("<hr>", unsafe_allow_html=True)
-    
-    # 3. VEHICLE & EQUIPMENT (Qualifying Questions)
-    st.subheader("🚗 Vehicle & Equipment")
-    st.markdown('<div class="qualifying-box"><p>⚠️ Minimum requirements to qualify for this position</p></div>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        # Vehicle
-        vehicle = st.radio(
-            "Do you have a reliable Truck, Van, or SUV? *",
-            ["Yes", "No"],
-            horizontal=True
-        )
+        skills = st.multiselect("SELECT RELEVANT EXPERIENCE *", SKILLS)
         
-        # Ladder
-        ladder = st.radio(
-            "Do you own a 28ft+ extension ladder? *",
-            ["Yes", "No"],
-            horizontal=True
-        )
-    
-    with col2:
-        # Driver's License
-        license_valid = st.radio(
-            "Do you have a valid Driver's License? *",
-            ["Yes", "No"],
-            horizontal=True
-        )
-    
-    # Tools Checklist
-    tools = st.multiselect(
-        "Checklist of required tools you own *",
-        [
-            "Drill",
-            "Impact Driver",
-            "Crimper",
-            "Cable Tester",
-            "Fish Tape",
-            "Signal Meter"
-        ]
-    )
-    
-    st.markdown("<hr>", unsafe_allow_html=True)
-    
-    # 4. REQUIREMENTS & LOGISTICS
-    st.subheader("📦 Requirements & Logistics")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        # Insurance
-        insurance = st.radio(
-            "Do you have General Liability Insurance? *",
-            ["Yes", "Will Obtain", "No"],
-            horizontal=True
-        )
-    
-    with col2:
-        # Start Date
-        start_date = st.radio(
-            "How soon can you start? *",
-            ["Immediately", "1-2 Weeks", "2+ Weeks"],
-            horizontal=True
-        )
-    
-    # Service Area
-    service_area = st.text_area(
-        "Counties you are willing to cover *",
-        placeholder="e.g., Miami-Dade, Broward, Palm Beach",
-        height=80
-    )
-    
-    st.markdown("<hr>", unsafe_allow_html=True)
-    
-    # Disclaimer
-    st.markdown("""
-        <p style="color: #666; font-size: 14px; text-align: center;">
-            By submitting this application, you confirm that the information provided is accurate and complete.
-            Vergecom LLC is an equal opportunity employer.
-        </p>
-    """, unsafe_allow_html=True)
-    
-    # Submit button
-    if st.button("SUBMIT APPLICATION", use_container_width=True):
-        # Validation
-        if not name or not phone or not city or not state or not zip_code:
-            st.error("⚠️ Please complete all required contact information fields.")
-        elif not skills:
-            st.error("⚠️ Please select at least one skill area.")
-        elif years_exp == "Select":
-            st.error("⚠️ Please select your years of experience.")
-        elif vehicle == "No" or ladder == "No" or license_valid == "No":
-            st.error("⚠️ You must meet the minimum vehicle and equipment requirements to qualify.")
-        elif not tools:
-            st.error("⚠️ Please select the tools you own.")
-        elif insurance == "No":
-            st.error("⚠️ General Liability Insurance is required for this position.")
-        elif not service_area:
-            st.error("⚠️ Please enter the counties you are willing to cover.")
-        else:
-            # Determine status
-            status = "QUALIFIED"
-            if years_exp == "< 1 year" or len(skills) < 2:
-                status = "REVIEW NEEDED"
-            
-            # Save to database
-            data = {
-                "name": name, "phone": phone, "email": email,
-                "city": city, "state": state, "zip": zip_code,
-                "skills": skills, "years_exp": years_exp, "roof_work": roof_work,
-                "vehicle": vehicle, "ladder": ladder, "license": license_valid,
-                "tools": tools, "insurance": insurance,
-                "service_area": service_area, "start_date": start_date
-            }
-            save_applicant(data, status)
-            
-            # Success message
-            st.balloons()
-            st.markdown(f"""
-                <div class="success-container">
-                    <div class="success-title">Application Received</div>
-                    <div class="success-text">
-                        Thank you, {name}. Your application for <strong>Starlink Installation Technician</strong> has been submitted.<br><br>
-                        A Vergecom LLC hiring manager will review your qualifications and contact you at <strong>{phone}</strong> within 2-3 business days.<br><br>
-                        Status: <strong>{status}</strong>
+        col1, col2 = st.columns(2)
+        with col1:
+            years = st.selectbox("YEARS OF EXPERIENCE *", ["Select", "< 1 year", "1-2 years", "3-5 years", "5+ years"])
+        with col2:
+            roof_work = st.radio("COMFORTABLE ON ROOFS? *", ["Yes", "Limited", "No"], horizontal=True)
+        
+        st.markdown("<hr>", unsafe_allow_html=True)
+
+        # 3. VEHICLE & EQUIPMENT (Qualifying Questions)
+        st.markdown("### 3. VEHICLE & EQUIPMENT")
+        st.markdown('<div class="qualifying-box"><p>⚠️ MINIMUM REQUIREMENTS TO QUALIFY</p></div>', unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            vehicle = st.radio("DO YOU HAVE A TRUCK/VAN/SUV? *", ["Yes", "No"], horizontal=True)
+            ladder = st.radio("DO YOU HAVE A 28FT+ LADDER? *", ["Yes", "No"], horizontal=True)
+        with col2:
+            license_valid = st.radio("VALID DRIVER'S LICENSE? *", ["Yes", "No"], horizontal=True)
+        
+        TOOLS = ["Drill", "Impact Driver", "Crimper", "Cable Tester", "Fish Tape", "Signal Meter"]
+        tools = st.multiselect("TOOLS YOU OWN *", TOOLS)
+        
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
+        # 4. REQUIREMENTS & LOGISTICS
+        st.markdown("### 4. REQUIREMENTS & LOGISTICS")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            insurance = st.radio("GENERAL LIABILITY INSURANCE? *", ["Yes", "Will Obtain", "No"], horizontal=True)
+        with col2:
+            start_date = st.radio("HOW SOON CAN YOU START? *", ["Immediately", "1-2 Weeks", "2+ Weeks"], horizontal=True)
+        
+        service_area = st.text_area("COUNTIES YOU ARE WILLING TO COVER *", placeholder="e.g., Miami-Dade, Broward, Palm Beach", height=80)
+        
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
+        # Disclaimer
+        st.markdown("""
+            <p style="text-align: center; font-size: 12px; color: #666;">
+                By submitting this application, you confirm that the information provided is accurate and complete.
+                Vergecom LLC is an equal opportunity employer.
+            </p>
+        """, unsafe_allow_html=True)
+        
+        # Submit button
+        submitted = st.form_submit_button("SUBMIT APPLICATION", use_container_width=True)
+        
+        if submitted:
+            # Validation
+            if not name or not phone or not city or not state or not zip_code:
+                st.error("⚠️ PLEASE COMPLETE ALL CONTACT INFORMATION FIELDS.")
+            elif not skills:
+                st.error("⚠️ PLEASE SELECT AT LEAST ONE SKILL AREA.")
+            elif years == "Select":
+                st.error("⚠️ PLEASE SELECT YOUR YEARS OF EXPERIENCE.")
+            elif vehicle == "No" or ladder == "No" or license_valid == "No":
+                st.error("⚠️ YOU MUST MEET THE MINIMUM VEHICLE AND EQUIPMENT REQUIREMENTS TO QUALIFY.")
+            elif not tools:
+                st.error("⚠️ PLEASE SELECT THE TOOLS YOU OWN.")
+            elif insurance == "No":
+                st.error("⚠️ GENERAL LIABILITY INSURANCE IS REQUIRED FOR THIS POSITION.")
+            elif not service_area:
+                st.error("⚠️ PLEASE ENTER THE COUNTIES YOU ARE WILLING TO COVER.")
+            else:
+                # Determine status
+                status = "QUALIFIED"
+                if years == "< 1 year" or len(skills) < 2:
+                    status = "REVIEW NEEDED"
+                
+                # Save to database
+                data = {
+                    "name": name, "phone": phone, "email": email,
+                    "city": city, "state": state, "zip": zip_code,
+                    "skills": skills, "years_exp": years, "roof_work": roof_work,
+                    "vehicle": vehicle, "ladder": ladder, "license": license_valid,
+                    "tools": tools, "insurance": insurance,
+                    "service_area": service_area, "start_date": start_date
+                }
+                save_applicant(data, status)
+                
+                # Success message
+                st.balloons()
+                st.markdown(f"""
+                    <div class="success-container">
+                        <div class="success-title">APPLICATION RECEIVED</div>
+                        <div class="success-text">
+                            Thank you, {name}. Your application for <strong>Starlink Installation Technician</strong> has been submitted.<br><br>
+                            A Vergecom LLC hiring manager will review your qualifications and contact you at <strong>{phone}</strong> within 2-3 business days.<br><br>
+                            STATUS: <strong>{status}</strong>
+                        </div>
                     </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            if st.button("← Submit Another Application", use_container_width=True):
-                st.session_state.page = 'landing'
-                st.rerun()
+                """, unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)  # Close form-card
-    st.markdown('</div>', unsafe_allow_html=True)  # Close main-container
+    st.markdown('</div>', unsafe_allow_html=True)
