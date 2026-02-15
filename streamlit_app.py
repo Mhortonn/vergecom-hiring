@@ -65,7 +65,7 @@ st.markdown("""
     }
 
     /* 6. TEXT STYLING CLASSES */
-    .job-section-title {
+    .section-title {
         font-size: 18px;
         font-weight: 700;
         color: #111827;
@@ -131,7 +131,7 @@ if st.session_state.page == 'landing':
     
     st.write("") # Spacer
 
-    # We use a standard variable string to prevent indentation errors
+    # FIXED HTML CONTENT - Properly closed tags
     html_content = """
     <div class="job-card">
         <h1 style="text-align: center; font-size: 38px; margin-bottom: 5px;">Starlink Technician</h1>
@@ -143,13 +143,13 @@ if st.session_state.page == 'landing':
             <strong style="color: #059669; font-size: 18px;">💰 Est. Pay: $1,200 - $1,800 / week</strong>
         </div>
 
-        <div class="job-section-title">About the Role</div>
+        <div class="section-title">About the Role</div>
         <p class="job-text">
             Vergecom is looking for professional, self-motivated Field Technicians to install, service, and upgrade Starlink satellite systems for residential and commercial customers. 
             This is a <strong>1099 Independent Contractor</strong> position offering flexibility and high earning potential based on piece-rate pay.
         </p>
 
-        <div class="job-section-title">Key Responsibilities</div>
+        <div class="section-title">Key Responsibilities</div>
         <ul class="job-list">
             <li>Perform site surveys to determine the optimal placement for satellite dishes.</li>
             <li>Mount hardware on roofs, siding, or poles using professional techniques (drilling, sealing, lag bolting).</li>
@@ -159,7 +159,7 @@ if st.session_state.page == 'landing':
             <li>Maintain accurate inventory of equipment and report job status via mobile app.</li>
         </ul>
 
-        <div class="job-section-title">Requirements</div>
+        <div class="section-title">Requirements</div>
         <ul class="job-list">
             <li><strong>Vehicle:</strong> Must own a reliable Truck, Van, or SUV capable of carrying a ladder.</li>
             <li><strong>Ladder:</strong> Must own a 28ft fiberglass extension ladder.</li>
@@ -169,7 +169,7 @@ if st.session_state.page == 'landing':
             <li><strong>Skills:</strong> Comfort working at heights, on roofs, and in crawl spaces/attics.</li>
         </ul>
 
-        <div class="job-section-title">Schedule & Territory</div>
+        <div class="section-title">Schedule & Territory</div>
         <p class="job-text">
             Routes are dispatched daily within the Greater Metro Area. Technicians typically complete 3-6 jobs per day. Weekend availability is a plus.
         </p>
