@@ -265,7 +265,7 @@ if st.session_state.page == 'home':
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown('<div class="list-header">WHAT YOU'LL DO</div>', unsafe_allow_html=True)
+            st.markdown('<div class="list-header">WHAT YOU\'LL DO</div>', unsafe_allow_html=True)
             st.markdown('<div class="list-item">Residential Starlink installations</div>', unsafe_allow_html=True)
             st.markdown('<div class="list-item">Roof mounting & cable routing</div>', unsafe_allow_html=True)
             st.markdown('<div class="list-item">Signal optimization & testing</div>', unsafe_allow_html=True)
