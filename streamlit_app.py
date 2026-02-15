@@ -320,16 +320,30 @@ elif st.session_state.page == "apply":
         submitted = st.form_submit_button("SUBMIT APPLICATION →", use_container_width=True)
 
         if submitted:
-            if not name.strip() or not phone.strip():
-                st.error("Name and phone number are required.")
+            if not name.strip():
+                st.error("Full name is required.")
+            elif not phone.strip():
+                st.error("Phone number is required.")
+            elif not email.strip():
+                st.error("Email address is required.")
             elif not state:
                 st.error("Please select your state.")
             elif not counties.strip():
                 st.error("Please enter the counties you're willing to work in.")
             elif not radius:
                 st.error("Please select how far you're willing to travel.")
-            elif not vehicle or not ladder:
-                st.error("A vehicle and ladder are required for this role.")
+            elif not any([exp_starlink, exp_directv, exp_dish, exp_hughesnet, exp_lowvoltage, exp_tvmount, exp_cable, exp_other]):
+                st.error("Please select at least one type of installation experience.")
+            elif not vehicle:
+                st.error("A reliable vehicle is required for this role.")
+            elif not ladder:
+                st.error("A 24ft+ fiberglass ladder is required for this role.")
+            elif not tools:
+                st.error("Basic installation tools are required for this role.")
+            elif not insurance:
+                st.error("Liability insurance is required for this role.")
+            elif not photo1 or not photo2:
+                st.error("Both install photos are required. Please upload 2 photos of your previous work.")
             else:
                 exp_list = [x for x, c in [
                     ("Starlink", exp_starlink), ("DirecTV", exp_directv),
