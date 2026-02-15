@@ -117,7 +117,7 @@ def upload_photo_to_supabase(file, applicant_name):
         ts = datetime.now().strftime("%Y%m%d%H%M%S")
         ext = file.name.split(".")[-1].lower()
         path = f"installs/{safe_name}_{ts}_{file.name}"
-        file_bytes = bytes(file.getbuffer())  # convert memoryview to bytes
+        file_bytes = bytes(file.getbuffer())
         content_type = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext}"
         supabase.storage.from_("applicant-photos").upload(
             path,
@@ -201,4 +201,178 @@ if st.session_state.page == "home":
             We're hiring experienced technicians to install Starlink satellite internet
             systems across the greater metro area. You'll work independently — handling
             residential installs from start to finish with full dispatch support. This is a
-            performance-based, uncapped
+            performance-based, uncapped-earning opportunity for self-starters who take pride
+            in quality work.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="dual-grid">
+        <div class="grid-panel">
+            <div class="grid-panel-title">// What You'll Do</div>
+            <div class="grid-item"><div class="grid-icon">▸</div>Residential Starlink installations</div>
+            <div class="grid-item"><div class="grid-icon">▸</div>Roof mounting &amp; cable routing</div>
+            <div class="grid-item"><div class="grid-icon">▸</div>Signal optimization &amp; testing</div>
+            <div class="grid-item"><div class="grid-icon">▸</div>Customer walkthroughs</div>
+        </div>
+        <div class="grid-panel">
+            <div class="grid-panel-title">// What You Need</div>
+            <div class="grid-item"><div class="grid-icon">✓</div>Reliable truck, van, or SUV</div>
+            <div class="grid-item"><div class="grid-icon">✓</div>24 ft+ fiberglass ladder</div>
+            <div class="grid-item"><div class="grid-icon">✓</div>Basic tools &amp; power drill</div>
+            <div class="grid-item"><div class="grid-icon">✓</div>Smartphone w/ data plan</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("APPLY NOW →", use_container_width=True):
+        st.session_state.page = "apply"
+        st.rerun()
+
+
+# ═══════════════ APPLICATION ═══════════════
+elif st.session_state.page == "apply":
+
+    if st.button("← Back to listing"):
+        st.session_state.page = "home"
+        st.rerun()
+
+    # --- THIS WAS THE PROBLEM AREA, NOW FIXED ---
+    st.markdown("""
+    <div class="form-card" style="margin-top:0.25rem;">
+        <div class="form-title">Apply</div>
+        <div class="form-subtitle">Fill out the basics — we'll be in touch within 48 hours.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.form("application_form"):
+        st.markdown('<div class="form-section-label">Contact Information</div>', unsafe_allow_html=True)
+        name = st.text_input("Full name *")
+        col1, col2 = st.columns(2)
+        with col1:
+            phone = st.text_input("Phone number *")
+        with col2:
+            email = st.text_input("Email address")
+
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="form-section-label">Coverage Area</div>', unsafe_allow_html=True)
+        
+        # --- FIXED STATE SELECTOR ---
+        state = st.selectbox(
+            "State applying for *", 
+            ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"],
+            index=None,
+            placeholder="Select your state..."
+        )
+        
+        counties = st.text_area("Counties willing to cover *", placeholder="e.g. Orange, Osceola, Seminole...")
+        radius = st.number_input("Mileage radius willing to travel (miles) *", min_value=0, max_value=500, value=50, step=10)
+
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="form-section-label">Experience</div>', unsafe_allow_html=True)
+        experience = st.selectbox("Years of installation experience",
+            ["Less than 1 year", "1–2 years", "3–5 years", "5+ years", "10+ years"])
+
+        st.markdown('<div class="form-section-label" style="margin-top:1rem;">Installation Experience (select all that apply)</div>', unsafe_allow_html=True)
+        col_a, col_b = st.columns(2)
+        with col_a:
+            exp_starlink = st.checkbox("Starlink")
+            exp_directv = st.checkbox("DirecTV")
+            exp_dish = st.checkbox("Dish Network")
+            exp_hughesnet = st.checkbox("HughesNet")
+        with col_b:
+            exp_lowvoltage = st.checkbox("Low Voltage")
+            exp_tvmount = st.checkbox("TV Mounting")
+            exp_cable = st.checkbox("Cable Installation")
+            exp_other = st.checkbox("Other Related")
+
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="form-section-label">Equipment Check</div>', unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            vehicle = st.checkbox("Reliable truck / van / SUV")
+            ladder = st.checkbox("24 ft+ fiberglass ladder")
+        with col2:
+            tools = st.checkbox("Basic installation tools")
+            insurance = st.checkbox("Liability insurance")
+
+        st.markdown('<div class="form-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="form-section-label">Previous Install Photos</div>', unsafe_allow_html=True)
+        st.markdown('<div class="upload-hint">Upload up to 2 photos of your previous installation work (JPG, PNG)</div>', unsafe_allow_html=True)
+        photo_col1, photo_col2 = st.columns(2)
+        with photo_col1:
+            photo1 = st.file_uploader("Photo 1", type=["jpg","jpeg","png"], key="photo1", label_visibility="collapsed")
+        with photo_col2:
+            photo2 = st.file_uploader("Photo 2", type=["jpg","jpeg","png"], key="photo2", label_visibility="collapsed")
+        if photo1 or photo2:
+            p1, p2 = st.columns(2)
+            if photo1:
+                with p1: st.image(photo1, use_container_width=True, caption="Photo 1")
+            if photo2:
+                with p2: st.image(photo2, use_container_width=True, caption="Photo 2")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        submitted = st.form_submit_button("SUBMIT APPLICATION →", use_container_width=True)
+
+        if submitted:
+            if not name.strip() or not phone.strip():
+                st.error("Name and phone number are required.")
+            elif not state:
+                st.error("Please select a state from the dropdown.")
+            elif not counties.strip():
+                st.error("Please list the counties you are willing to cover.")
+            elif not vehicle or not ladder:
+                st.error("A vehicle and ladder are required for this role.")
+            else:
+                exp_list = [x for x, c in [
+                    ("Starlink", exp_starlink), ("DirecTV", exp_directv),
+                    ("Dish Network", exp_dish), ("HughesNet", exp_hughesnet),
+                    ("Low Voltage", exp_lowvoltage), ("TV Mounting", exp_tvmount),
+                    ("Cable Installation", exp_cable), ("Other", exp_other),
+                ] if c]
+
+                photo1_url = upload_photo_to_supabase(photo1, name) if photo1 else ""
+                photo2_url = upload_photo_to_supabase(photo2, name) if photo2 else ""
+
+                result = save_applicant({
+                    "name": name.strip(), "phone": phone.strip(), "email": email.strip(),
+                    "state": state,             
+                    "counties": counties,       
+                    "radius": radius,           
+                    "experience": experience,
+                    "exp_types": ", ".join(exp_list) if exp_list else "None selected",
+                    "vehicle": "Yes" if vehicle else "No",
+                    "ladder": "Yes" if ladder else "No",
+                    "insurance": "Yes" if insurance else "No",
+                    "photo1_url": photo1_url, "photo2_url": photo2_url,
+                })
+                if result:
+                    st.session_state.page = "success"
+                    st.rerun()
+
+
+# ═══════════════ SUCCESS ═══════════════
+elif st.session_state.page == "success":
+    st.markdown("""
+    <div class="form-card">
+        <div class="success-wrapper">
+            <div class="success-icon">✓</div>
+            <div class="success-title">Application Received</div>
+            <div class="success-desc">
+                Thanks for your interest. Our team will review your information
+                and reach out within two business days.
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("BACK TO LISTING", use_container_width=True):
+        st.session_state.page = "home"
+        st.rerun()
+
+st.markdown("""
+<div class="site-footer">
+    <div class="footer-brand">VERGECOM LLC</div>
+    <div class="footer-sub">Independent Contractor Opportunities</div>
+</div>
+""", unsafe_allow_html=True)
