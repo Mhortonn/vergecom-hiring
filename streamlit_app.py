@@ -1,7 +1,10 @@
 import streamlit as st
-import time
+import sqlite3
+from datetime import datetime
 
-# --- CONSTANTS ---
+# --- CONFIG & CONSTANTS ---
+st.set_page_config(page_title="Starlink Tech Application", page_icon="📡", layout="centered")
+
 SKILLS = [
     "Satellite systems (DirecTV, HughesNet)",
     "Starlink installation",
@@ -16,305 +19,194 @@ DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sun
 YEARS_OPTIONS = ["Less than 1 year", "1-2 years", "3-5 years", "5-10 years", "10+ years"]
 RADIUS_OPTIONS = ["15 miles", "30 miles", "50 miles", "75 miles", "100+ miles"]
 
-# --- CONFIG & STYLING ---
-st.set_page_config(page_title="Starlink Tech Application", page_icon="📡", layout="centered")
-
-# Inject Custom CSS to match the React Styles (DM Sans, Space Grotesk, Colors)
+# --- CUSTOM CSS (THE "PAINT") ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
-    /* Global Reset */
+    /* 1. Main Background */
     .stApp {
-        background-color: #F4F5F7;
+        background-color: #F0F2F6; /* Clean Off-White */
         font-family: 'DM Sans', sans-serif;
     }
-    
-    /* Headers */
+
+    /* 2. Headers (Add Blue Color) */
     h1, h2, h3 {
-        font-family: 'Space Grotesk', sans-serif !important;
-        color: #1A1D23;
+        color: #0066FF !important; /* Starlink Blue */
+        font-family: 'DM Sans', sans-serif !important;
     }
-
-    /* Hero Section Styles */
-    .hero-container {
-        background: #F4F5F7;
-        text-align: center;
-        padding: 40px 20px;
-    }
-    .hero-badge {
-        display: inline-block;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        color: #00875A;
-        background: #E3FBF0;
-        padding: 4px 14px;
-        border-radius: 20px;
-        margin-bottom: 16px;
-    }
-    .hero-stats {
-        display: inline-flex;
-        background: white;
-        border-radius: 14px;
-        padding: 16px 32px;
-        box-shadow: 0 1px 3px rgba(0,0,0,.06);
-        border: 1px solid #ECEEF2;
-        gap: 24px;
-        margin-top: 24px;
-    }
-    .stat-val { font-family: 'Space Grotesk'; font-weight: 700; font-size: 18px; color: #1A1D23; }
-    .stat-label { font-size: 12px; color: #9CA1AE; }
-
-    /* Custom Containers/Cards */
-    .custom-card {
-        background: white;
-        padding: 24px;
-        border-radius: 14px;
-        border: 2px solid #ECEEF2;
-        margin-bottom: 16px;
-    }
-    .card-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+    
+    /* 3. The "Cards" (White Boxes with Shadow) */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: white;
+        border-radius: 12px;
+        border: 1px solid #E0E0E0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Soft Shadow */
+        padding: 20px;
         margin-bottom: 20px;
     }
-    .card-num {
-        background: #E8EAF0;
-        color: #7A7F8D;
-        width: 28px; height: 28px;
-        border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 700;
-        font-family: 'Space Grotesk';
-    }
-    .active-num { background: #0066FF; color: white; }
-    .done-num { background: #00B37E; color: white; }
 
-    /* Inputs */
-    .stTextInput input, .stSelectbox div[data-baseweb="select"] {
-        border-radius: 10px;
-        border: 1.5px solid #E2E4E9;
+    /* 4. Input Fields */
+    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stTextArea textarea {
+        background-color: #FAFAFA;
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
     }
-    
-    /* Submit Button */
+
+    /* 5. Submit Button (Force Blue) */
     .stButton button {
-        width: 100%;
-        background-color: #0066FF;
-        color: white;
-        border-radius: 12px;
-        padding: 12px 0;
-        font-weight: 600;
+        background-color: #0066FF !important;
+        color: white !important;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
         border: none;
+        box-shadow: 0 4px 6px rgba(0, 102, 255, 0.2);
     }
     .stButton button:hover {
-        background-color: #0052CC;
-        color: white;
+        background-color: #0052CC !important;
     }
-    
-    /* Result Box */
-    .result-box {
+
+    /* 6. Hero Section Styling */
+    .hero-box {
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
         text-align: center;
-        padding: 60px 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        border-top: 5px solid #0066FF;
+    }
+    .hero-badge {
+        background: #E3FBF0;
+        color: #00875A;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 12px;
+        display: inline-block;
+        margin-bottom: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- STATE MANAGEMENT ---
-# Initialize session state for all fields
+# --- DATABASE SETUP ---
+def init_db():
+    conn = sqlite3.connect('starlink_candidates.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS applicants (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT, phone TEXT, email TEXT, status TEXT, 
+            skills TEXT, timestamp TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def save_applicant(data, status):
+    conn = sqlite3.connect('starlink_candidates.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO applicants (name, phone, email, status, skills, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+              (data['name'], data['phone'], data['email'], status, str(data['skills']), datetime.now()))
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# --- SESSION STATE ---
+if 'form' not in st.session_state:
+    st.session_state.form = {
+        "name": "", "phone": "", "email": "", "skills": [], "years": "", 
+        "vehicle": "No", "license": "No", "insurance": "No", "counties": ""
+    }
 if 'submitted' not in st.session_state:
     st.session_state.submitted = False
     st.session_state.status = ""
-    st.session_state.form_data = {
-        "name": "", "phone": "", "email": "",
-        "city": "", "state": "", "zip": "",
-        "skills": [], "years": "", "roof": "No",
-        "tasks": [], "vehicle": "No", "license": "No",
-        "ladder": "No", "tools": [], "insurance": "No",
-        "start_date": "", "days": [], "counties": "", "radius": "30 miles"
-    }
 
-# --- HELPER FUNCTIONS ---
-def update_progress():
-    d = st.session_state.form_data
-    # Logic to calculate sections completed (similar to React logic)
-    sections = [
-        bool(d['name'] and d['phone'] and d['email']), # Contact
-        bool(d['skills'] and d['years']), # Experience
-        bool(d['vehicle'] != "No" and d['license'] != "No"), # Vehicle
-        bool(d['insurance'] != "No"), # Insurance
-        bool(d['start_date'] and d['days']), # Availability
-        bool(d['counties']) # Area
-    ]
-    return int((sum(sections) / 6) * 100)
-
-def submit_logic():
-    d = st.session_state.form_data
-    
-    # Validation
-    if not d['name'] or not d['phone'] or not d['email'] or not d['counties']:
-        st.error("Please fill in all required fields marked with *")
-        return
-
-    # "The Brain" Logic (Directly translated from React)
-    app_status = "QUALIFIED"
-    is_rejected = False
-    
-    if "No installation experience" in d['skills']: is_rejected = True
-    if d['vehicle'] == "No": is_rejected = True
-    if d['license'] == "No": is_rejected = True
-    if d['insurance'] == "No": is_rejected = True
-
-    if is_rejected:
-        app_status = "REJECTED"
-    else:
-        has_sat_exp = any(s in ["Satellite systems (DirecTV, HughesNet)", "Starlink installation"] for s in d['skills'])
-        has_ins = d['insurance'] == "Yes, I currently have insurance"
-        valid_vehicle = d['vehicle'] in ["Yes - Truck", "Yes - Van"]
-        
-        if has_sat_exp and has_ins and valid_vehicle:
-            app_status = "PRIORITY"
-
-    st.session_state.status = app_status
-    st.session_state.submitted = True
-
-# --- MAIN APP RENDER ---
+# --- MAIN APP LOGIC ---
 
 if st.session_state.submitted:
-    # === RESULT SCREEN ===
-    status = st.session_state.status
-    data = st.session_state.form_data
-    
-    st.markdown('<div class="result-box">', unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        if status == "REJECTED":
-            st.markdown(f"""
-            <div style="background:#FFF1F0; width:64px; height:64px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center;">
-                <span style="font-size:30px">❌</span>
-            </div>
-            <h2>Application Not Accepted</h2>
-            <p style="color:#7A7F8D">Thank you for your interest. Based on our current requirements, we're unable to proceed with your application at this time.</p>
-            """, unsafe_allow_html=True)
-        else:
-            priority_badge = ""
-            if status == "PRIORITY":
-                priority_badge = """<div style="background:#FFF7ED; color:#B45309; border:1px solid #FBBF24; padding:4px 14px; border-radius:20px; display:inline-block; font-weight:600; font-size:13px; margin-bottom:10px;">★ Priority Candidate</div>"""
-            
-            st.markdown(f"""
-            <div style="background:#ECFDF3; width:64px; height:64px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center;">
-                <span style="font-size:30px">✅</span>
-            </div>
-            <br>
-            {priority_badge}
-            <h2>Application Received</h2>
-            <p style="color:#7A7F8D">Thank you, <strong>{data['name']}</strong>. Your qualifications are a strong match.</p>
-            <p style="color:#7A7F8D">Our hiring team will review your file and contact you at <strong>{data['phone']}</strong> within 24 hours.</p>
-            """, unsafe_allow_html=True)
-            
-    st.markdown('</div>', unsafe_allow_html=True)
+    # SUCCESS SCREEN
+    st.markdown(f"""
+    <div style="text-align:center; padding: 50px; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="font-size: 60px;">✅</div>
+        <h2 style="color: #0066FF;">Application Received</h2>
+        <p>Thank you, <strong>{st.session_state.form['name']}</strong>.</p>
+        <p>Our team will contact you at <strong>{st.session_state.form['phone']}</strong> within 24 hours.</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     if st.button("Start New Application"):
         st.session_state.submitted = False
         st.rerun()
 
 else:
-    # === HERO SECTION ===
+    # HERO HEADER
     st.markdown("""
-    <div class="hero-container">
+    <div class="hero-box">
         <div class="hero-badge">NOW HIRING</div>
-        <h1>Starlink Installation Technician</h1>
-        <p style="color: #7A7F8D;">Apply to become a Certified Field Technician — Independent Contractor (1099)</p>
-        <div class="hero-stats">
-            <div><div class="stat-val">$45-75</div><div class="stat-label">Per Install</div></div>
-            <div style="width:1px; background:#ECEEF2;"></div>
-            <div><div class="stat-val">Flexible</div><div class="stat-label">Schedule</div></div>
-            <div style="width:1px; background:#ECEEF2;"></div>
-            <div><div class="stat-val">Training</div><div class="stat-label">Provided</div></div>
-        </div>
+        <h1 style="margin: 10px 0;">Starlink Installation Technician</h1>
+        <p style="color: #666;">Apply to become a Certified Field Technician (1099)</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # === PROGRESS BAR ===
-    progress = update_progress()
+    # PROGRESS BAR
+    progress = 0
+    if st.session_state.form['name']: progress += 20
+    if st.session_state.form['skills']: progress += 20
+    if st.session_state.form['vehicle'] != "No": progress += 20
+    if st.session_state.form['counties']: progress += 40
     st.progress(progress)
-    st.caption(f"Application progress: {progress}%")
 
-    # === FORM SECTIONS ===
-    
-    # 1. Contact Info
+    # --- FORM SECTIONS (Using Containers as "Cards") ---
+
     with st.container(border=True):
-        st.markdown('### 👤 1. Contact Information')
-        st.session_state.form_data['name'] = st.text_input("Full Name *", value=st.session_state.form_data['name'])
+        st.subheader("👤 1. Contact Information")
+        st.session_state.form['name'] = st.text_input("Full Name *", value=st.session_state.form['name'])
         c1, c2 = st.columns(2)
-        st.session_state.form_data['phone'] = c1.text_input("Phone Number *", value=st.session_state.form_data['phone'])
-        st.session_state.form_data['email'] = c2.text_input("Email Address *", value=st.session_state.form_data['email'])
+        st.session_state.form['phone'] = c1.text_input("Phone Number *", value=st.session_state.form['phone'])
+        st.session_state.form['email'] = c2.text_input("Email Address *", value=st.session_state.form['email'])
         
-        st.session_state.form_data['street'] = st.text_input("Street Address", value=st.session_state.form_data.get('street', ''))
-        c3, c4, c5 = st.columns([2,1,1])
-        st.session_state.form_data['city'] = c3.text_input("City", value=st.session_state.form_data['city'])
-        st.session_state.form_data['state'] = c4.text_input("State", value=st.session_state.form_data['state'])
-        st.session_state.form_data['zip'] = c5.text_input("Zip", value=st.session_state.form_data['zip'])
+        c3, c4, c5 = st.columns([2, 1, 1])
+        c3.text_input("City")
+        c4.text_input("State")
+        c5.text_input("Zip")
 
-    # 2. Experience
     with st.container(border=True):
-        st.markdown('### 🛠 2. Experience & Qualifications')
-        st.session_state.form_data['skills'] = st.multiselect("Installation Experience *", SKILLS, default=st.session_state.form_data['skills'])
+        st.subheader("🛠 2. Experience")
+        st.session_state.form['skills'] = st.multiselect("Installation Experience *", SKILLS, default=st.session_state.form['skills'])
         
         c1, c2 = st.columns(2)
-        st.session_state.form_data['years'] = c1.selectbox("Years of Experience *", [""] + YEARS_OPTIONS, index=0)
-        st.session_state.form_data['roof'] = c2.radio("Experience working on roofs? *", ["Yes, comfortable", "Yes, limited", "No, but willing", "No"], horizontal=True)
-        
-        st.markdown("**Comfortable with tasks:**")
-        cols = st.columns(2)
-        tasks_list = ["Drilling through walls/roofs", "Running cables in attics", "Working at heights (20ft+)", "Troubleshooting network issues"]
-        selected_tasks = []
-        for i, task in enumerate(tasks_list):
-            if cols[i % 2].checkbox(task, key=f"task_{i}"):
-                selected_tasks.append(task)
-        st.session_state.form_data['tasks'] = selected_tasks
+        st.session_state.form['years'] = c1.selectbox("Years of Experience", [""] + YEARS_OPTIONS)
+        c2.radio("Experience working on roofs?", ["Yes", "Limited", "No"], horizontal=True)
 
-    # 3. Vehicle & Equipment
     with st.container(border=True):
-        st.markdown('### 🚗 3. Vehicle & Equipment')
-        st.session_state.form_data['vehicle'] = st.radio("Do you have a reliable vehicle? *", ["Yes - Truck", "Yes - Van", "Yes - SUV", "No"], horizontal=True)
+        st.subheader("🚗 3. Vehicle & Tools")
+        st.session_state.form['vehicle'] = st.radio("Do you have a reliable vehicle?", ["Yes - Truck/Van", "Yes - SUV", "No"], horizontal=True)
         
         c1, c2 = st.columns(2)
-        st.session_state.form_data['license'] = c1.radio("Valid Driver's License? *", ["Yes", "No"], horizontal=True)
-        st.session_state.form_data['ladder'] = c2.radio("28ft+ extension ladder? *", ["Yes, I own one", "No, but I can get one", "No"], horizontal=True)
+        st.session_state.form['license'] = c1.radio("Valid Driver's License?", ["Yes", "No"], horizontal=True)
+        c2.radio("Own a 28ft+ Ladder?", ["Yes", "No"], horizontal=True)
         
-        st.session_state.form_data['tools'] = st.multiselect("Tools Owned", TOOLS, default=st.session_state.form_data['tools'])
+        st.multiselect("Tools Owned", TOOLS)
 
-    # 4. Insurance
     with st.container(border=True):
-        st.markdown('### 🛡 4. Insurance')
-        st.session_state.form_data['insurance'] = st.radio("General Liability Insurance *", ["Yes, I currently have insurance", "No, but I can obtain within 1 week", "No, but I can obtain within 2 weeks", "No"])
+        st.subheader("🛡 4. Requirements")
+        st.session_state.form['insurance'] = st.radio("General Liability Insurance", ["Yes, I have it", "No, but I will get it", "No"])
+        st.session_state.form['counties'] = st.text_area("Counties you can cover *", placeholder="e.g. Orange, Lake, Seminole...", value=st.session_state.form['counties'])
 
-    # 5. Availability
-    with st.container(border=True):
-        st.markdown('### 📅 5. Availability')
-        c1, c2 = st.columns(2)
-        st.session_state.form_data['start_date'] = c1.selectbox("When can you start?", ["", "Immediately", "Within 1 week", "Within 2 weeks"])
-        c2.text_input("Employment Type", value="Independent Contractor (1099)", disabled=True)
-        
-        st.session_state.form_data['days'] = st.multiselect("Days Available", DAYS, default=st.session_state.form_data['days'])
-
-    # 6. Service Area
-    with st.container(border=True):
-        st.markdown('### 📍 6. Service Area')
-        st.session_state.form_data['counties'] = st.text_area("Counties you're willing to work in *", placeholder="e.g. Orange County, Lake County...", value=st.session_state.form_data['counties'])
-        st.session_state.form_data['radius'] = st.select_slider("Max travel radius", options=RADIUS_OPTIONS, value=st.session_state.form_data['radius'])
-
-    # === SUBMIT ===
+    # SUBMIT BUTTON
     if st.button("Submit Application"):
-        submit_logic()
-        if st.session_state.submitted:
+        # Validation
+        if not st.session_state.form['name'] or not st.session_state.form['phone']:
+            st.error("Please fill in Name and Phone Number.")
+        else:
+            # Logic
+            status = "QUALIFIED"
+            if "No installation experience" in st.session_state.form['skills']: status = "REJECTED"
+            
+            save_applicant(st.session_state.form, status)
+            st.session_state.status = status
+            st.session_state.submitted = True
             st.rerun()
-
-    st.markdown("""
-    <div style="text-align: center; color: #9CA1AE; font-size: 12px; margin-top: 16px;">
-        By submitting this application, you agree to our terms and conditions. All information is kept confidential.
-    </div>
-    """, unsafe_allow_html=True)
